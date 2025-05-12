@@ -1,107 +1,182 @@
 # ASL Recognition System
 
-A modular system for American Sign Language (ASL) recognition using hand landmarks.
+![ASL Recognition Demo](https://via.placeholder.com/800x400.png?text=ASL+Recognition+Demo)
 
-## Setup
+A modular system for American Sign Language (ASL) recognition using hand landmarks, supporting both single-hand and two-hand signs.
+
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Dataset Format](#dataset-format)
+- [Model Architecture](#model-architecture)
+- [System Design](#system-design)
+
+## Features
+- Real-time hand landmark detection using MediaPipe
+- Support for both single-hand and two-hand ASL signs
+- Modular architecture for easy maintenance and extension
+- Cross-platform compatibility (Windows/macOS)
+- Comprehensive CLI interface
+
+## Installation
+
+### Prerequisites
+Python 3.11 - 3.12
+MediaPipe (for hand landmark detection)
+pip package manager
+
+- Create virtual environment
 
 ```bash
 python -m venv asl_env
+```
+- Activate environment (macOS/Linux)
+
+```bash
 source asl_env/bin/activate
+```
+- Activate environment (Windows)
+
+```bash
+source asl_env/Scripts/activate
+```
+
+- Install dependencies
+```bash
 pip install -r requirements.txt
 ```
 
-## Project Structure
-The project follows a modular organization with the following key components:
-
-- `asl_modules/utils.py`: Core utility functions shared across the system
-- `asl_modules/data_collection.py`: Hand landmark data collection functionality  
-- `asl_modules/preprocessing.py`: Data processing and analysis pipeline
-- `asl_modules/training.py`: Model training and performance evaluation
-- `asl_modules/inference.py`: Live prediction and visualization system
-- `asl_app.py`: Command-line interface and main application entry point
-
 ## Usage
+
 ### Data Collection
-Collect hand landmark data for ASL signs:
+Single-hand sign collection
 
 ```bash
 python asl_app.py collect --letter A --samples 100
- ```
+```
+
+Two-hand sign collection
+
+```bash
+python asl_app.py collect --letter MEET --samples 100 --multi-hand
+```
+
+```bash
+python asl_app.py collect --letter MEET --samples 100 --multi-hand --output multi_hand_dataset.csv
+```
 
 Or collect data for multiple letters interactively:
 
 ```bash
 python asl_app.py collect
- ```
+```
 
 ### Data Analysis
 Analyze the collected dataset:
 
 ```bash
-python asl_app.py analyze
- ```
+python asl_app.py analyze --input asl_landmarks_dataset.csv
+```
 
-### Model Training
-Train the ASL recognition model:
+### Combining Datasets
+
+Combine single-hand and multi-hand datasets:
 
 ```bash
-python asl_app.py train
- ```
+python asl_app.py combine --single-hand single_hand_dataset.csv --multi-hand multi_hand_dataset.csv --output combined_dataset.csv
+```
 
+### Model Training
+Train the ASL recognition model for single-hand signs:
+
+```bash
+python asl_app.py train --input asl_landmarks_dataset.csv
+```
+
+Train a model specifically for multi-hand signs:
+
+```bash
+python asl_app.py train --input multi_hand_dataset.csv --multi-hand
+```
+
+Train a unified model that handles both single-hand and two-hand signs:
+
+```bash
+python asl_app.py train-unified --single-hand single_hand_dataset.csv --multi-hand multi_hand_dataset.csv
+```
 ### Real-time Recognition
 Run real-time ASL recognition using webcam:
 
 ```bash
 python asl_app.py run
- ```
+```
 
-### Model Evaluation
+For multi-hand sign recognition:
+
+```bash
+python asl_app.py run --multi-hand
+```
+
+ ### Model Evaluation
 Evaluate the model on saved data:
 
 ```bash
-python asl_app.py evaluate
- ```
+python asl_app.py evaluate --input test_dataset.csv
+```
 
-## Dataset
-The dataset consists of hand landmarks collected using MediaPipe Hands.
-Each sample contains 21 landmarks with x, y, z coordinates, normalized relative to the wrist position.
+For multi-hand model evaluation:
+
+```bash
+python asl_app.py evaluate --input multi_hand_test_dataset.csv --multi-hand
+```
+
+## Dataset Format
+
+### Single-hand Signs
+- 21 landmarks × 3 coordinates (x, y, z)
+- Normalized relative to wrist position
+- CSV columns: `label,landmark_0_x,landmark_0_y,landmark_0_z,...`
+
+### Two-hand Signs
+- Hand count indicator (1 or 2)
+- Separate landmarks for left and right hands
+- CSV columns: `label,hand_count,left_0_x,...,right_0_x,...`
 
 ## Model Architecture
-The system employs a Multi-Layer Perceptron (MLP) classifier with the following architecture:
 
-- Input Layer: 63 features (21 landmarks × 3 coordinates)
-- Hidden Layer: 128 neurons with ReLU activation
-- Output Layer: 26 neurons (one for each letter) with softmax activation
-- Optimizer: Adam
-- Loss Function: Categorical Cross-entropy
+### Single-hand Model
+```python
+InputLayer(63) -> Dense(128, activation='relu') -> Dense(num_classes, activation='softmax')
+```
+
+### Multi-hand Model
+```python
+InputLayer(127) -> Dense(128, activation='relu') -> Dense(64, activation='relu') -> Dense(num_classes, activation='softmax')
+```
+
+- **Optimizer**: Adam (learning_rate=0.001)
+- **Loss**: Categorical Cross-entropy
+- **Metrics**: Accuracy, Precision, Recall
 
 ## System Design
-The project follows a modular architecture with these key benefits:
 
-1. **Separation of Concerns**: Each module handles a specific task independently:
-   - Data collection and preprocessing
-   - Model training and evaluation
-   - Real-time inference
-   - Utility functions
+```mermaid
+graph TD
+    A[Webcam Input] --> B(Hand Detection)
+    B --> C{Hand Count}
+    C -->|Single| D[Single-hand Processing]
+    C -->|Multi| E[Multi-hand Processing]
+    D --> F[Landmark Normalization]
+    E --> F
+    F --> G[Model Inference]
+    G --> H[Output Display]
+```
 
-2. **Reusability**: Common components are shared across modules:
-   - Preprocessing pipelines
-   - Model configuration
-   - Evaluation metrics
+Key Components:
+- **asl_modules/utils.py**: Shared utilities
+- **asl_modules/data_collection.py**: Data pipeline
+- **asl_modules/training.py**: Model development
+- **asl_modules/inference.py**: Real-time prediction
 
-3. **Testability**: Modular design enables:
-   - Unit testing of individual components
-   - Integration testing of module interactions
-   - End-to-end system testing
-
-4. **Extensibility**: The system can be enhanced by:
-   - Adding new model architectures
-   - Implementing additional preprocessing steps
-   - Supporting more sign language gestures
-
-5. **User Interface**: Command-line interface provides:
-   - Intuitive access to all features
-   - Configurable parameters
-   - Clear feedback and logging
-
-For usage instructions, refer to the command examples in the sections above.
+Thank you for your interest in the ASL Recognition System!

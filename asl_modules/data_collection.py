@@ -17,7 +17,7 @@ def save_to_csv(landmarks_list, labels, filename="asl_landmarks_dataset.csv"):
     Parameters:
     -----------
     landmarks_list : list
-        List of normalized landmarks
+        List of normalized landmarks (can contain single hand or both hands data)
     labels : list
         List of labels corresponding to the landmarks
     filename : str
@@ -38,18 +38,49 @@ def save_to_csv(landmarks_list, labels, filename="asl_landmarks_dataset.csv"):
         
         # Write headers if file is new
         if not file_exists:
-            # Create header: label, landmark0_x, landmark0_y, landmark0_z, landmark1_x, ...
-            headers = ['label']
-            for i in range(21):  # 21 landmarks
-                headers.extend([f'landmark{i}_x', f'landmark{i}_y', f'landmark{i}_z'])
+            # Create header: label, hand_count, left_landmark0_x, left_landmark0_y, ...
+            headers = ['label', 'hand_count']
+            
+            # Headers for left hand
+            for i in range(21):  # 21 landmarks per hand
+                headers.extend([f'left_landmark{i}_x', f'left_landmark{i}_y', f'left_landmark{i}_z'])
+            
+            # Headers for right hand
+            for i in range(21):
+                headers.extend([f'right_landmark{i}_x', f'right_landmark{i}_y', f'right_landmark{i}_z'])
+                
             writer.writerow(headers)
         
         # Write data rows
         for landmarks, label in zip(landmarks_list, labels):
-            # Flatten the landmarks array and convert to list
-            flattened = landmarks.flatten().tolist()
-            # Combine label with flattened landmarks
-            row = [label] + flattened
+            # Check if this is multi-hand data (dictionary) or single-hand data (numpy array)
+            if isinstance(landmarks, dict):
+                # Multi-hand data
+                hand_count = sum(1 for hand in landmarks.values() if hand is not None)
+                
+                # Initialize row with label and hand count
+                row = [label, hand_count]
+                
+                # Add left hand data if available
+                if landmarks.get('Left') is not None:
+                    row.extend(landmarks['Left'].flatten().tolist())
+                else:
+                    # Add zeros for missing left hand
+                    row.extend([0.0] * (21 * 3))
+                
+                # Add right hand data if available
+                if landmarks.get('Right') is not None:
+                    row.extend(landmarks['Right'].flatten().tolist())
+                else:
+                    # Add zeros for missing right hand
+                    row.extend([0.0] * (21 * 3))
+            else:
+                # Single-hand data (backward compatibility)
+                row = [label, 1]
+                # Add the single hand data to the right hand columns
+                row.extend([0.0] * (21 * 3))  # Zeros for left hand
+                row.extend(landmarks.flatten().tolist())  # Single hand data as right hand
+            
             writer.writerow(row)
     
     print(f"Data saved to {filepath}")
@@ -68,24 +99,28 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
     output_file : str
         Name of the CSV file to save the data
     """
-    # Initialize MediaPipe Hands
-    hands, mp_hands, mp_drawing, mp_drawing_styles = initialize_mediapipe_hands(max_num_hands=1)
+    # Initialize MediaPipe Hands with support for two hands
+    hands, mp_hands, mp_drawing, mp_drawing_styles = initialize_mediapipe_hands(max_num_hands=2)
     
     # Initialize webcam
     cap = initialize_webcam()
     
     # Get user input for the ASL letter and number of samples if not provided
     if asl_letter is None:
-        print("Enter the ASL letter to collect data for (e.g., 'A', 'B', etc.):")
+        print("Enter the ASL letter/sign to collect data for (e.g., 'A', 'B', 'MEET', etc.):")
         asl_letter = input().strip().upper()
     
     if num_samples is None:
-        print(f"Enter the number of samples to collect for letter '{asl_letter}':")
+        print(f"Enter the number of samples to collect for sign '{asl_letter}':")
         try:
             num_samples = int(input().strip())
         except ValueError:
             print("Invalid input. Using default of 50 samples.")
             num_samples = 50
+    
+    # Ask if this is a two-handed sign
+    print(f"Is '{asl_letter}' a two-handed sign? (y/n)")
+    requires_two_hands = input().strip().lower() == 'y'
     
     # Lists to store collected data
     all_landmarks = []
@@ -102,7 +137,7 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
     auto_capture = False
     
     print("\nInstructions:")
-    print("- Position your hand in the webcam view making the ASL sign for letter '" + asl_letter + "'")
+    print("- Position your hand(s) in the webcam view making the ASL sign for '" + asl_letter + "'")
     print("- Press 'c' to manually capture a sample")
     print("- Press 'a' to toggle auto-capture mode (captures every 0.5 seconds)")
     print("- Press 'q' to quit and save the collected data")
@@ -125,6 +160,9 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
             image.flags.writeable = True
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             
+            # Process hand landmarks
+            hand_data = process_hand_landmarks(results)
+            
             # Display progress and instructions
             cv2.putText(image, f"Collecting: {asl_letter} ({collected_samples}/{num_samples})", 
                        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
@@ -133,11 +171,16 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
             cv2.putText(image, f"Auto-capture: {auto_status}", 
                        (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
             
-            # Check if hand is detected
-            hand_detected = False
-            if results.multi_hand_landmarks:
-                hand_detected = True
-                for hand_landmarks in results.multi_hand_landmarks:
+            # Check if required hands are detected
+            hands_detected = hand_data['hand_count'] > 0
+            correct_hands = True
+            
+            if requires_two_hands and hand_data['hand_count'] < 2:
+                correct_hands = False
+            
+            # Draw landmarks if hands are detected
+            if hand_data['multi_hand_landmarks']:
+                for hand_landmarks in hand_data['multi_hand_landmarks']:
                     # Draw landmarks
                     mp_drawing.draw_landmarks(
                         image,
@@ -148,8 +191,15 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
                     )
             
             # Display hand detection status
-            status_color = (0, 255, 0) if hand_detected else (0, 0, 255)
-            status_text = "Hand Detected" if hand_detected else "No Hand Detected"
+            status_color = (0, 255, 0) if hands_detected and correct_hands else (0, 0, 255)
+            
+            if not hands_detected:
+                status_text = "No Hands Detected"
+            elif requires_two_hands and hand_data['hand_count'] < 2:
+                status_text = f"Need Both Hands ({hand_data['hand_count']}/2)"
+            else:
+                status_text = f"Hands Detected: {hand_data['hand_count']}"
+                
             cv2.putText(image, status_text, (10, 90), 
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_color, 2)
             
@@ -158,10 +208,16 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
             
             # Handle auto-capture
             current_time = time.time()
-            if auto_capture and hand_detected and (current_time - last_capture_time) >= capture_delay:
+            can_capture = hands_detected and correct_hands
+            
+            if auto_capture and can_capture and (current_time - last_capture_time) >= capture_delay:
                 if collected_samples < num_samples:
-                    # Normalize and save landmarks
-                    normalized_landmarks = normalize_landmarks(results.multi_hand_landmarks[0].landmark)
+                    # Normalize landmarks for both hands
+                    normalized_landmarks = normalize_landmarks(
+                        hand_data['organized_landmarks'], 
+                        multi_hand=True
+                    )
+                    
                     all_landmarks.append(normalized_landmarks)
                     all_labels.append(asl_letter)
                     
@@ -181,9 +237,13 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
             
             if key == ord('q'):
                 break
-            elif key == ord('c') and hand_detected and collected_samples < num_samples:
+            elif key == ord('c') and can_capture and collected_samples < num_samples:
                 # Manual capture
-                normalized_landmarks = normalize_landmarks(results.multi_hand_landmarks[0].landmark)
+                normalized_landmarks = normalize_landmarks(
+                    hand_data['organized_landmarks'], 
+                    multi_hand=True
+                )
+                
                 all_landmarks.append(normalized_landmarks)
                 all_labels.append(asl_letter)
                 collected_samples += 1
@@ -201,7 +261,7 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
         # Save collected data
         if all_landmarks:
             saved_count = save_to_csv(all_landmarks, all_labels, output_file)
-            print(f"Saved {saved_count} samples for ASL letter '{asl_letter}'")
+            print(f"Saved {saved_count} samples for ASL sign '{asl_letter}'")
         else:
             print("No data was collected.")
         
