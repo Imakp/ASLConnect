@@ -54,11 +54,11 @@ def main():
     
     # Run recognition command
     run_parser = subparsers.add_parser('run', help='Run real-time ASL recognition')
-    run_parser.add_argument('--model', type=str, default='asl_mlp_model.joblib', 
+    run_parser.add_argument('--model', type=str, default='asl_mlp_multi_hand_model.joblib', 
                            help='Model file name')
     run_parser.add_argument('--scaler', type=str, default='hand_landmarks_scaler.joblib', 
                            help='Scaler file name')
-    run_parser.add_argument('--multi-hand', action='store_true',
+    run_parser.add_argument('--multi-hand', action='store_true', default=True,
                            help='Use multi-hand model for recognition')
     
     # Evaluate on saved data command
@@ -96,7 +96,7 @@ def main():
     # Execute the appropriate command
     if args.command == 'collect':
         if args.letter and args.samples:
-            collect_asl_data(args.letter, args.samples, args.output)
+            collect_asl_data(args.letter, args.samples, args.output, args.multi_hand)
         else:
             collect_multiple_asl_letters(output_file=args.output)
     
@@ -114,13 +114,10 @@ def main():
             train_and_evaluate_model(args.input, args.hidden_size, args.max_iter)
     
     elif args.command == 'run':
-        if args.multi_hand:
-            print("Running recognition with multi-hand model...")
-            model_filename = 'asl_mlp_multi_hand_model.joblib'
-            scaler_filename = 'hand_landmarks_scaler.joblib'
-            run_asl_recognition(model_filename, scaler_filename)
-        else:
-            run_asl_recognition(args.model, args.scaler)
+        print("Running recognition...")
+        model_filename = args.model
+        scaler_filename = args.scaler
+        run_asl_recognition(model_filename, scaler_filename)
     
     elif args.command == 'evaluate':
         if args.multi_hand:

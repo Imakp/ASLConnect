@@ -8,7 +8,7 @@ import numpy as np
 import os
 import csv
 import time
-from .utils import normalize_landmarks, initialize_mediapipe_hands, initialize_webcam, get_project_root
+from .utils import normalize_landmarks, initialize_mediapipe_hands, initialize_webcam, get_project_root, process_hand_landmarks
 
 def save_to_csv(landmarks_list, labels, filename="asl_landmarks_dataset.csv"):
     """
@@ -86,7 +86,7 @@ def save_to_csv(landmarks_list, labels, filename="asl_landmarks_dataset.csv"):
     print(f"Data saved to {filepath}")
     return len(landmarks_list)
 
-def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmarks_dataset.csv"):
+def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmarks_dataset.csv", multi_hand=False):
     """
     Collect ASL hand landmark data using webcam.
     
@@ -98,6 +98,8 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
         Number of samples to collect (if None, will prompt user)
     output_file : str
         Name of the CSV file to save the data
+    multi_hand : bool
+        Flag indicating if collecting data for multi-hand signs
     """
     # Initialize MediaPipe Hands with support for two hands
     hands, mp_hands, mp_drawing, mp_drawing_styles = initialize_mediapipe_hands(max_num_hands=2)
@@ -118,9 +120,11 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
             print("Invalid input. Using default of 50 samples.")
             num_samples = 50
     
-    # Ask if this is a two-handed sign
-    print(f"Is '{asl_letter}' a two-handed sign? (y/n)")
-    requires_two_hands = input().strip().lower() == 'y'
+    # Ask if this is a two-handed sign if multi_hand flag is not set
+    requires_two_hands = multi_hand
+    if not multi_hand:
+        print(f"Is '{asl_letter}' a two-handed sign? (y/n)")
+        requires_two_hands = input().strip().lower() == 'y'
     
     # Lists to store collected data
     all_landmarks = []
@@ -190,7 +194,7 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
                         mp_drawing_styles.get_default_hand_connections_style()
                     )
             
-            # Display hand detection status
+            # Display hand detection status and orientation confidence
             status_color = (0, 255, 0) if hands_detected and correct_hands else (0, 0, 255)
             
             if not hands_detected:
@@ -203,6 +207,17 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
             cv2.putText(image, status_text, (10, 90), 
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_color, 2)
             
+            # Display orientation confidence
+            y_pos = 120
+            for hand in ['Left', 'Right']:
+                if hand_data['organized_landmarks'][hand] is not None:
+                    confidence = hand_data['orientation_confidence'][hand]
+                    confidence_text = f"{hand} hand: {confidence:.2f}"
+                    cv2.putText(image, confidence_text, 
+                               (10, y_pos), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 200, 255), 2)
+                    y_pos += 30
+            
             # Show the image
             cv2.imshow('ASL Data Collection', image)
             
@@ -212,11 +227,23 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
             
             if auto_capture and can_capture and (current_time - last_capture_time) >= capture_delay:
                 if collected_samples < num_samples:
-                    # Normalize landmarks for both hands
-                    normalized_landmarks = normalize_landmarks(
-                        hand_data['organized_landmarks'], 
-                        multi_hand=True
-                    )
+                    # Normalize landmarks based on whether we need one or two hands
+                    if requires_two_hands:
+                        # For two-handed signs, use the organized landmarks
+                        normalized_landmarks = normalize_landmarks(
+                            hand_data['organized_landmarks'], 
+                            multi_hand=True
+                        )
+                    else:
+                        # For single-handed signs, use the organized landmarks with proper handedness
+                        if hand_data['multi_hand_landmarks'] and len(hand_data['multi_hand_landmarks']) > 0:
+                            # Use the organized landmarks which should have the correct handedness
+                            normalized_landmarks = normalize_landmarks(
+                                hand_data['organized_landmarks'],
+                                multi_hand=True
+                            )
+                        else:
+                            continue  # Skip if no hand landmarks
                     
                     all_landmarks.append(normalized_landmarks)
                     all_labels.append(asl_letter)
@@ -238,11 +265,23 @@ def collect_asl_data(asl_letter=None, num_samples=None, output_file="asl_landmar
             if key == ord('q'):
                 break
             elif key == ord('c') and can_capture and collected_samples < num_samples:
-                # Manual capture
-                normalized_landmarks = normalize_landmarks(
-                    hand_data['organized_landmarks'], 
-                    multi_hand=True
-                )
+                # Manual capture - normalize landmarks based on whether we need one or two hands
+                if requires_two_hands:
+                    # For two-handed signs, use the organized landmarks
+                    normalized_landmarks = normalize_landmarks(
+                        hand_data['organized_landmarks'], 
+                        multi_hand=True
+                    )
+                else:
+                    # For single-handed signs, use the organized landmarks with proper handedness
+                    if hand_data['multi_hand_landmarks'] and len(hand_data['multi_hand_landmarks']) > 0:
+                        # Use the organized landmarks which should have the correct handedness
+                        normalized_landmarks = normalize_landmarks(
+                            hand_data['organized_landmarks'],
+                            multi_hand=True
+                        )
+                    else:
+                        continue  # Skip if no hand landmarks
                 
                 all_landmarks.append(normalized_landmarks)
                 all_labels.append(asl_letter)

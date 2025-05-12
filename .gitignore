@@ -2,3 +2,10 @@
 /dataset
 
 .DS_Store
+
+__pycache__
+
+asl_landmarks_dataset.csv
+multi_hand_confusion_matrix.png
+asl_mlp_multi_hand_model.joblib
+hand_landmarks_scaler.joblib

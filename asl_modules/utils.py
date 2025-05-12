@@ -55,7 +55,8 @@ def normalize_landmarks(landmarks, multi_hand=False):
         
         # Process each hand separately
         for hand_label, hand_landmarks in landmarks.items():
-            if hand_landmarks:
+            if hand_landmarks is not None:  # Check if landmarks exist for this hand
+                # Convert to numpy array for easier manipulation
                 points = np.array([[landmark.x, landmark.y, landmark.z] for landmark in hand_landmarks])
                 
                 # Center to the wrist (landmark 0)
@@ -199,7 +200,7 @@ def process_hand_landmarks(results):
     
     Parameters:
     -----------
-    results : mediapipe.python.solutions.hands.Hands.process() results
+    results : mediapipe.python.solutions.hands.process() results
         Results from MediaPipe hand detection
         
     Returns:
@@ -210,12 +211,14 @@ def process_hand_landmarks(results):
         - 'multi_handedness': List of handedness (left/right) for each detected hand
         - 'organized_landmarks': Dictionary with 'Left' and 'Right' keys containing landmarks
         - 'hand_count': Number of hands detected
+        - 'orientation_confidence': Confidence in hand orientation detection
     """
     hand_data = {
         'multi_hand_landmarks': results.multi_hand_landmarks,
         'multi_handedness': results.multi_handedness,
         'organized_landmarks': {'Left': None, 'Right': None},
-        'hand_count': 0
+        'hand_count': 0,
+        'orientation_confidence': {'Left': 0.0, 'Right': 0.0}
     }
     
     if results.multi_hand_landmarks:
@@ -223,8 +226,93 @@ def process_hand_landmarks(results):
         
         # Organize landmarks by handedness (left/right)
         for idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
-            if results.multi_handedness:
-                handedness = results.multi_handedness[idx].classification[0].label
+            if results.multi_handedness and idx < len(results.multi_handedness):
+                # Get MediaPipe's handedness classification
+                mp_handedness = results.multi_handedness[idx].classification[0].label
+                mp_confidence = results.multi_handedness[idx].classification[0].score
+                
+                # Verify and potentially correct the handedness
+                verified_handedness, verified_confidence = verify_hand_orientation(
+                    hand_landmarks.landmark, mp_handedness
+                )
+                
+                # Use the verified handedness
+                handedness = verified_handedness
+                hand_data['orientation_confidence'][handedness] = verified_confidence
+                
+                # Store the landmarks under the verified handedness
                 hand_data['organized_landmarks'][handedness] = hand_landmarks.landmark
     
     return hand_data
+
+
+def verify_hand_orientation(landmarks, handedness_label):
+    """
+    Verify and potentially correct the hand orientation (left/right) based on
+    anatomical features rather than just relying on MediaPipe's classification.
+    
+    Parameters:
+    -----------
+    landmarks : list
+        List of landmarks with x, y, z coordinates
+    handedness_label : str
+        The handedness label provided by MediaPipe ('Left' or 'Right')
+        
+    Returns:
+    --------
+    corrected_label : str
+        The corrected handedness label ('Left' or 'Right')
+    confidence : float
+        Confidence score for the correction (0.0 to 1.0)
+    """
+    # Convert landmarks to numpy array for easier manipulation
+    points = np.array([[landmark.x, landmark.y, landmark.z] for landmark in landmarks])
+    
+    # Extract key points for orientation analysis
+    wrist = points[0]
+    thumb_cmc = points[1]  # Thumb carpometacarpal joint
+    thumb_tip = points[4]
+    index_mcp = points[5]  # Index finger metacarpophalangeal joint
+    pinky_mcp = points[17]  # Pinky metacarpophalangeal joint
+    
+    # Vector from wrist to middle of hand
+    hand_center = (index_mcp + pinky_mcp) / 2
+    wrist_to_center = hand_center - wrist
+    
+    # Vector from wrist to thumb
+    wrist_to_thumb = thumb_tip - wrist
+    
+    # Cross product to determine which side the thumb is on
+    # This works because the cross product gives a vector perpendicular to the plane
+    # formed by the two input vectors, and its direction follows the right-hand rule
+    cross_product = np.cross(wrist_to_center[:2], wrist_to_thumb[:2])
+    
+    # The sign of the z-component of the cross product tells us which side the thumb is on
+    # For a right hand, the thumb should be on the left side when palm is facing down
+    # For a left hand, the thumb should be on the right side when palm is facing down
+    thumb_side = 'Right' if cross_product < 0 else 'Left'
+    
+    # Calculate the angle between the thumb and the hand center
+    # This helps determine if the hand is facing up or down
+    dot_product = np.dot(wrist_to_center, wrist_to_thumb)
+    magnitudes = np.linalg.norm(wrist_to_center) * np.linalg.norm(wrist_to_thumb)
+    angle = np.arccos(np.clip(dot_product / magnitudes, -1.0, 1.0))
+    angle_degrees = np.degrees(angle)
+    
+    # Determine if the palm is facing up or down
+    # This is a simplified heuristic - in a real system, you might need more complex logic
+    palm_facing = 'up' if thumb_tip[1] < wrist[1] else 'down'
+    
+    # Determine the likely handedness based on anatomical features
+    anatomical_handedness = 'Right' if (palm_facing == 'down' and thumb_side == 'Left') or \
+                                      (palm_facing == 'up' and thumb_side == 'Right') else 'Left'
+    
+    # Compare with MediaPipe's classification
+    if anatomical_handedness == handedness_label:
+        # If they agree, high confidence
+        confidence = 0.9
+    else:
+        # If they disagree, use anatomical features but with lower confidence
+        confidence = 0.7
+    
+    return anatomical_handedness, confidence

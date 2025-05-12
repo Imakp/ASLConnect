@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import time
 from collections import Counter
-from .utils import normalize_landmarks, load_model, initialize_mediapipe_hands, initialize_webcam, get_project_root
+from .utils import normalize_landmarks, load_model, initialize_mediapipe_hands, initialize_webcam, get_project_root, process_hand_landmarks
 
 def predict_asl_sign(landmarks, model, scaler, multi_hand=False):
     """
@@ -32,24 +32,8 @@ def predict_asl_sign(landmarks, model, scaler, multi_hand=False):
     confidence : float
         Confidence score for the prediction (probability)
     """
-    if not multi_hand:
-        # Original single-hand prediction
-        # Normalize the landmarks
-        normalized_landmarks = normalize_landmarks(landmarks)
-        
-        # Flatten the landmarks to match the input format expected by the model
-        flattened_landmarks = normalized_landmarks.flatten().reshape(1, -1)
-        
-        # Scale the features using the loaded scaler
-        scaled_features = scaler.transform(flattened_landmarks)
-        
-        # Make prediction
-        prediction = model.predict(scaled_features)[0]
-        
-        # Get prediction probability (confidence)
-        probabilities = model.predict_proba(scaled_features)[0]
-        confidence = np.max(probabilities)
-    else:
+    # Always use multi-hand format for prediction when multi_hand flag is True
+    if multi_hand:
         # Multi-hand prediction
         # Normalize the landmarks for both hands
         normalized_hands = normalize_landmarks(landmarks, multi_hand=True)
@@ -76,13 +60,43 @@ def predict_asl_sign(landmarks, model, scaler, multi_hand=False):
         
         # Scale the features using the loaded scaler
         scaled_features = scaler.transform(final_features)
-        
-        # Make prediction
-        prediction = model.predict(scaled_features)[0]
-        
-        # Get prediction probability (confidence)
-        probabilities = model.predict_proba(scaled_features)[0]
-        confidence = np.max(probabilities)
+    else:
+        # For single-hand prediction, convert to multi-hand format if the model expects it
+        try:
+            # First try the original single-hand approach
+            normalized_landmarks = normalize_landmarks(landmarks)
+            flattened_landmarks = normalized_landmarks.flatten().reshape(1, -1)
+            scaled_features = scaler.transform(flattened_landmarks)
+        except ValueError as e:
+            # If that fails, try converting to multi-hand format
+            print("Converting single-hand data to multi-hand format...")
+            
+            # Create a multi-hand format with only the right hand
+            multi_hand_dict = {'Left': None, 'Right': landmarks}
+            normalized_hands = normalize_landmarks(multi_hand_dict, multi_hand=True)
+            
+            # Prepare features vector with both hands (left hand will be zeros)
+            feature_vector = np.zeros((1, 21 * 3 * 2))  # 21 landmarks, 3 coordinates, 2 hands
+            
+            # Add right hand features
+            right_features = normalized_hands['Right'].flatten()
+            feature_vector[0, 21*3:21*3+right_features.size] = right_features
+            
+            # Add hand count as a feature (1 for single hand)
+            hand_count = 1
+            
+            # Create the final feature vector with hand count
+            final_features = np.hstack([np.array([[hand_count]]), feature_vector])
+            
+            # Scale the features using the loaded scaler
+            scaled_features = scaler.transform(final_features)
+    
+    # Make prediction
+    prediction = model.predict(scaled_features)[0]
+    
+    # Get prediction probability (confidence)
+    probabilities = model.predict_proba(scaled_features)[0]
+    confidence = np.max(probabilities)
     
     return prediction, confidence
 
@@ -102,6 +116,10 @@ def run_asl_recognition(model_filename='asl_mlp_model.joblib', scaler_filename='
         model = load_model(model_filename)
         scaler = load_model(scaler_filename)
         print("Model and scaler loaded successfully!")
+        
+        # Determine if we're using a multi-hand model based on the filename
+        is_multi_hand_model = 'multi_hand' in model_filename
+        print(f"Using {'multi-hand' if is_multi_hand_model else 'single-hand'} model")
         
         # Initialize MediaPipe Hands with support for two hands
         hands, mp_hands, mp_drawing, mp_drawing_styles = initialize_mediapipe_hands(max_num_hands=2)
@@ -209,14 +227,29 @@ def run_asl_recognition(model_filename='asl_mlp_model.joblib', scaler_filename='
                             mp_drawing_styles.get_default_hand_connections_style()
                         )
                 
+                # Display orientation confidence
+                for hand in ['Left', 'Right']:
+                    if hand_data['organized_landmarks'][hand] is not None:
+                        confidence = hand_data['orientation_confidence'][hand]
+                        confidence_text = f"{hand} hand: {confidence:.2f}"
+                        y_pos = 100 if hand == 'Left' else 130
+                        cv2.putText(display_image, confidence_text,
+                                   (10, y_pos),
+                                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 200, 255), 2)
+                
                 # Predict ASL sign based on number of hands detected
-                if hand_data['hand_count'] == 1:
-                    # Single hand prediction
-                    # Use the first detected hand
-                    hand_landmarks = hand_data['multi_hand_landmarks'][0].landmark
-                    prediction, confidence = predict_asl_sign(
-                        hand_landmarks, model, scaler, multi_hand=False
-                    )
+                if hand_data['hand_count'] > 0:
+                    if is_multi_hand_model:
+                        # For multi-hand model, always use the organized landmarks
+                        prediction, confidence = predict_asl_sign(
+                            hand_data['organized_landmarks'], model, scaler, multi_hand=True
+                        )
+                    else:
+                        # For single-hand model, use the first detected hand
+                        hand_landmarks = hand_data['multi_hand_landmarks'][0].landmark
+                        prediction, confidence = predict_asl_sign(
+                            hand_landmarks, model, scaler, multi_hand=False
+                        )
                 else:
                     # Multi-hand prediction
                     prediction, confidence = predict_asl_sign(
