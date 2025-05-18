@@ -29,23 +29,48 @@ thread_pool = eventlet.greenpool.GreenPool(size=10)
 init_complete = False
 init_failed = False
 init_error = None
-init_timeout = 60  # Timeout in seconds
 
 # Initialize the subtitle generator in a separate thread
 def init_subtitle_generator():
     global subtitle_generator, init_complete, init_failed, init_error
     try:
         print("Starting ASL Subtitle Generator initialization...")
+        
+        # Check if model files exist
+        model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'asl_model')
+        model_path = os.path.join(model_dir, 'asl_mlp_multi_hand_model.joblib')
+        scaler_path = os.path.join(model_dir, 'hand_landmarks_scaler.joblib')
+        
+        if not os.path.exists(model_dir):
+            os.makedirs(model_dir)
+            init_failed = True
+            init_error = f"Model directory does not exist: {model_dir}"
+            print(init_error)
+            return
+            
+        if not os.path.exists(model_path):
+            init_failed = True
+            init_error = f"Model file not found: {model_path}"
+            print(init_error)
+            return
+            
+        if not os.path.exists(scaler_path):
+            init_failed = True
+            init_error = f"Scaler file not found: {scaler_path}"
+            print(init_error)
+            return
+            
+        print(f"Model files found. Initializing ASL Subtitle Generator...")
         subtitle_generator = ASLSubtitleGenerator()
         
         # Wait for model to load with timeout
         start_time = time.time()
+        timeout = 60  # 60 seconds timeout
         while not subtitle_generator.model_ready:
             time.sleep(0.5)
-            # Check for timeout
-            if time.time() - start_time > init_timeout:
+            if time.time() - start_time > timeout:
                 init_failed = True
-                init_error = "Initialization timed out after {} seconds".format(init_timeout)
+                init_error = f"Model loading timed out after {timeout} seconds"
                 print(init_error)
                 return
                 
@@ -55,6 +80,8 @@ def init_subtitle_generator():
         init_failed = True
         init_error = str(e)
         print(f"ASL Subtitle Generator initialization failed: {e}")
+        import traceback
+        print(traceback.format_exc())
 
 # Start initialization in a background thread
 init_thread = threading.Thread(target=init_subtitle_generator)

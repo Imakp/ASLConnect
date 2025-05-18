@@ -2,7 +2,7 @@ import base64
 import cv2
 import numpy as np
 from asl_modules.utils import initialize_mediapipe_hands, process_hand_landmarks, normalize_landmarks
-from asl_modules.utils import load_model
+from asl_modules.utils import load_model, get_project_root
 import time
 import os
 import threading
@@ -41,7 +41,6 @@ class ASLSubtitleGenerator:
         self.model = None
         self.scaler = None
         self.model_ready = False
-        self.init_error = None
         
         # Start loading models in a separate thread
         self._load_models_async(model_filename, scaler_filename)
@@ -51,16 +50,21 @@ class ASLSubtitleGenerator:
         def load_models():
             try:
                 print("Loading ML models...")
-                # Check if model files exist
-                model_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'asl_model')
+                # Get absolute paths to model files
+                model_dir = os.path.join(get_project_root(), 'asl_model')
                 model_path = os.path.join(model_dir, model_filename)
                 scaler_path = os.path.join(model_dir, scaler_filename)
                 
+                print(f"Looking for model at: {model_path}")
+                print(f"Looking for scaler at: {scaler_path}")
+                
                 if not os.path.exists(model_path):
-                    raise FileNotFoundError(f"Model file not found: {model_path}")
+                    print(f"ERROR: Model file not found: {model_path}")
+                    return
                 
                 if not os.path.exists(scaler_path):
-                    raise FileNotFoundError(f"Scaler file not found: {scaler_path}")
+                    print(f"ERROR: Scaler file not found: {scaler_path}")
+                    return
                 
                 print(f"Loading model from {model_path}")
                 self.model = load_model(model_filename)
@@ -71,7 +75,6 @@ class ASLSubtitleGenerator:
                 self.model_ready = True
                 print("ML models loaded successfully!")
             except Exception as e:
-                self.init_error = str(e)
                 print(f"Error loading models: {e}")
                 print(traceback.format_exc())
         
