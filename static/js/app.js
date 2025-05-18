@@ -74,48 +74,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Handle subtitles
-    socket.on('subtitle', (data) => {
-        const { text, confidence, user_id } = data;
-        
-        console.log(`Received subtitle: ${text} (${confidence}) for user ${user_id}`);
-        
-        // If user_id is provided, find the specific video element
-        if (user_id) {
-            // Find the video element for this user
-            let videoElement = document.querySelector(`[data-user-id="${user_id}"]`);
+    // Handle special commands
+    socket.on('subtitle', function(data) {
+        if (typeof data.text === 'object' && data.text.command) {
+            // Handle command
+            const command = data.text.command;
             
-            // If not found by data attribute, try to determine if it's local or remote
-            if (!videoElement) {
-                if (user_id === socket.id) {
-                    videoElement = document.getElementById('localVideo');
-                } else {
-                    videoElement = document.getElementById('remoteVideo');
-                }
+            if (command === 'mute') {
+                document.getElementById('muteBtn').click();
+            } else if (command === 'end_call') {
+                document.getElementById('leaveBtn').click();
+            } else if (command === 'clear_history') {
+                document.querySelector('.subtitles-history').innerHTML = '';
             }
             
-            if (videoElement) {
-                // Find or create subtitle element for this video
-                let subtitleElement = videoElement.parentElement.querySelector('.subtitles');
-                if (!subtitleElement) {
-                    subtitleElement = document.createElement('div');
-                    subtitleElement.className = 'subtitles';
-                    videoElement.parentElement.appendChild(subtitleElement);
-                }
-                
-                // Update subtitle text
-                subtitleElement.textContent = `${text} (${(confidence * 100).toFixed(0)}%)`;
-                
-                // Make subtitle visible
-                subtitleElement.classList.add('visible');
-                
-                // Hide subtitle after 3 seconds
-                setTimeout(() => {
-                    subtitleElement.classList.remove('visible');
-                }, 3000);
-            }
+            // Display command text
+            displaySubtitle(data.text.text, data.confidence);
         } else {
-            // Fallback to the old method if no user_id is provided
-            showSubtitle(text, confidence);
+            // Regular subtitle
+            displaySubtitle(data.text, data.confidence);
         }
     });
     
@@ -180,4 +157,56 @@ document.addEventListener('DOMContentLoaded', () => {
             room: webrtc.roomId
         });
     }
+    
+    // Add a confidence threshold slider to the UI
+    const confidenceSlider = document.createElement('input');
+    confidenceSlider.type = 'range';
+    confidenceSlider.min = '0.5';
+    confidenceSlider.max = '0.95';
+    confidenceSlider.step = '0.05';
+    confidenceSlider.value = '0.7';
+    confidenceSlider.id = 'confidenceThreshold';
+    
+    const sliderLabel = document.createElement('label');
+    sliderLabel.htmlFor = 'confidenceThreshold';
+    sliderLabel.textContent = 'Recognition Sensitivity: ';
+    
+    // Add to controls div
+    document.querySelector('.controls').appendChild(sliderLabel);
+    document.querySelector('.controls').appendChild(confidenceSlider);
+    
+    // Send threshold to server when changed
+    confidenceSlider.addEventListener('change', function() {
+        socket.emit('set_threshold', {
+            threshold: parseFloat(this.value),
+            room: currentRoom
+        });
+    });
 });
+
+// Create subtitle history container
+const subtitlesHistory = document.createElement('div');
+subtitlesHistory.className = 'subtitles-history';
+document.querySelector('.video-wrapper:nth-child(2)').appendChild(subtitlesHistory);
+
+// Update subtitle display function
+function displaySubtitle(text, confidence) {
+    const subtitles = document.getElementById('subtitles');
+    subtitles.textContent = `${text} (${Math.round(confidence * 100)}%)`;
+    subtitles.classList.add('active');
+    
+    // Add to history
+    const historyEntry = document.createElement('p');
+    historyEntry.textContent = text;
+    subtitlesHistory.prepend(historyEntry);
+    
+    // Limit history size
+    if (subtitlesHistory.children.length > 10) {
+        subtitlesHistory.removeChild(subtitlesHistory.lastChild);
+    }
+    
+    // Hide subtitle after 3 seconds
+    setTimeout(() => {
+        subtitles.classList.remove('active');
+    }, 3000);
+}

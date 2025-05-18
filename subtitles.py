@@ -13,6 +13,8 @@ class ASLSubtitleGenerator:
     Class to generate subtitles from ASL signs in video frames.
     """
     
+    # Add these methods to your ASLSubtitleGenerator class
+    
     def __init__(self, model_filename='asl_mlp_multi_hand_model.joblib', scaler_filename='hand_landmarks_scaler.joblib'):
         """
         Initialize the ASL subtitle generator.
@@ -229,8 +231,70 @@ class ASLSubtitleGenerator:
             probabilities = self.model.predict_proba(scaled_features)[0]
             confidence = np.max(probabilities)
             
-            return prediction, confidence
+            # After getting a prediction, check for special commands
+            if prediction and confidence > 0.8:
+                # Check for special command gestures
+                if prediction == "MUTE":
+                    return {"command": "mute", "text": "Mute/Unmute"}, confidence
+                elif prediction == "END":
+                    return {"command": "end_call", "text": "End Call"}, confidence
+                elif prediction == "CLEAR":
+                    return {"command": "clear_history", "text": "Clear History"}, confidence
+                else:
+                    # Regular ASL sign
+                    return prediction, confidence
         except Exception as e:
             print(f"Error in prediction: {e}")
             print(traceback.format_exc())
             return None, 0.0
+
+    def add_to_sentence(self, prediction, confidence):
+        """
+        Add a prediction to the current sentence if it's stable.
+        
+        Parameters:
+        -----------
+        prediction : str
+            Predicted ASL sign
+        confidence : float
+            Confidence score for the prediction
+            
+        Returns:
+        --------
+        sentence : str or None
+            Current sentence if updated, None otherwise
+        """
+        current_time = time.time()
+        
+        # Reset sentence if timeout occurred
+        if current_time - self.last_sentence_update > self.sentence_timeout and self.current_sentence:
+            sentence = " ".join(self.current_sentence)
+            self.current_sentence = []
+            self.last_prediction = None
+            self.prediction_count = 0
+            return f"{sentence}."  # Return the completed sentence
+        
+        # Update last activity time
+        self.last_sentence_update = current_time
+        
+        # Check if this is a repeat of the last prediction
+        if prediction == self.last_prediction:
+            self.prediction_count += 1
+            
+            # Add to sentence after seeing the same prediction multiple times
+            if self.prediction_count == 3 and prediction not in self.current_sentence[-3:]:
+                self.current_sentence.append(prediction)
+                self.prediction_count = 0
+                return " ".join(self.current_sentence)
+        else:
+            # New prediction
+            self.last_prediction = prediction
+            self.prediction_count = 1
+        
+        # Limit sentence length
+        if len(self.current_sentence) > self.max_sentence_length:
+            sentence = " ".join(self.current_sentence)
+            self.current_sentence = []
+            return f"{sentence}."  # Return the completed sentence
+        
+        return None
