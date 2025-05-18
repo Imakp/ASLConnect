@@ -10,14 +10,18 @@ import cv2
 import numpy as np
 from subtitles import ASLSubtitleGenerator
 from video_call import VideoCallManager
+import threading
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')  # Explicitly set async_mode
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # Initialize managers
 subtitle_generator = ASLSubtitleGenerator()
 video_manager = VideoCallManager()
+
+# Create a thread pool for handling blocking operations
+thread_pool = eventlet.greenpool.GreenPool(size=10)
 
 @app.route('/')
 def index():
@@ -58,6 +62,21 @@ def handle_ice_candidate(data):
     room = data['room']
     emit('ice_candidate', data, room=room, skip_sid=request.sid)
 
+def process_frame_async(frame_data, room, user_id):
+    """Process frame in a separate thread to avoid blocking the main loop"""
+    prediction, confidence = subtitle_generator.process_frame(frame_data)
+    
+    if prediction and confidence > 0.7:
+        # Emit subtitle to all users in room including sender
+        socketio.emit('subtitle', {
+            'text': prediction,
+            'confidence': confidence,
+            'user_id': user_id
+        }, room=room)
+        
+        # Log successful predictions for debugging
+        print(f"ASL Prediction: {prediction} (Confidence: {confidence:.2f})")
+
 @socketio.on('frame')
 def handle_frame(data):
     """Process video frame for ASL recognition"""
@@ -65,20 +84,8 @@ def handle_frame(data):
     room = data['room']
     user_id = request.sid
     
-    # Process frame for ASL recognition
-    prediction, confidence = subtitle_generator.process_frame(frame_data)
-    
-    # Use the same confidence threshold as in inference.py (0.7 instead of 0.85)
-    if prediction and confidence > 0.7:
-        # Emit subtitle to all users in room including sender (for debugging)
-        emit('subtitle', {
-            'text': prediction,
-            'confidence': confidence,
-            'user_id': user_id  # Include user ID so client knows which video to show subtitle on
-        }, room=room)
-        
-        # Log successful predictions for debugging
-        print(f"ASL Prediction: {prediction} (Confidence: {confidence:.2f})")
+    # Offload the processing to a green thread to avoid blocking
+    thread_pool.spawn_n(process_frame_async, frame_data, room, user_id)
 
 if __name__ == '__main__':
     # Use PORT environment variable provided by Render, or default to 5000

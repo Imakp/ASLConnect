@@ -97,21 +97,25 @@ document.addEventListener('DOMContentLoaded', () => {
             if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
                 sendFrameForASLRecognition(video);
             }
-        }, 200); // Process 5 frames per second
+        }, 500); // Process 2 frames per second instead of 5
     }
     
     function sendFrameForASLRecognition(videoElement) {
         // Create a canvas to capture the frame
         const canvas = document.createElement('canvas');
-        canvas.width = videoElement.videoWidth || 640;
-        canvas.height = videoElement.videoHeight || 480;
+        
+        // Reduce resolution to save bandwidth and processing
+        const scaleFactor = 0.5;
+        canvas.width = videoElement.videoWidth * scaleFactor || 320;
+        canvas.height = videoElement.videoHeight * scaleFactor || 240;
+        
         const ctx = canvas.getContext('2d');
         
         // Draw the current video frame to the canvas
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         
-        // Convert the canvas to a base64-encoded image
-        const frameData = canvas.toDataURL('image/jpeg', 0.8);
+        // Convert the canvas to a base64-encoded image with reduced quality
+        const frameData = canvas.toDataURL('image/jpeg', 0.6);
         
         // Send the frame to the server
         socket.emit('frame', {

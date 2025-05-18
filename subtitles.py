@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from asl_modules.utils import initialize_mediapipe_hands, process_hand_landmarks, normalize_landmarks
 from asl_modules.utils import load_model
+import time
 
 class ASLSubtitleGenerator:
     """
@@ -31,6 +32,10 @@ class ASLSubtitleGenerator:
         self.recent_predictions = []
         self.max_recent = 5
         
+        # For rate limiting
+        self.last_process_time = 0
+        self.process_interval = 0.2  # Process at most 5 frames per second
+        
     def process_frame(self, frame_data):
         """
         Process a video frame for ASL recognition.
@@ -47,6 +52,13 @@ class ASLSubtitleGenerator:
         confidence : float
             Confidence score for the prediction
         """
+        # Rate limiting to prevent overloading
+        current_time = time.time()
+        if current_time - self.last_process_time < self.process_interval:
+            return None, 0.0
+        
+        self.last_process_time = current_time
+        
         try:
             # Decode base64 image
             encoded_data = frame_data.split(',')[1] if ',' in frame_data else frame_data
@@ -54,8 +66,13 @@ class ASLSubtitleGenerator:
             image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
             
             if image is None:
-                print("Failed to decode image")
                 return None, 0.0
+            
+            # Resize image to reduce processing time
+            scale_percent = 50  # percent of original size
+            width = int(image.shape[1] * scale_percent / 100)
+            height = int(image.shape[0] * scale_percent / 100)
+            image = cv2.resize(image, (width, height))
                 
             # Get image dimensions
             image_height, image_width = image.shape[:2]
@@ -73,8 +90,6 @@ class ASLSubtitleGenerator:
             
             # Check if hands are detected
             if hand_data['hand_count'] > 0:
-                print(f"Detected {hand_data['hand_count']} hands")
-                
                 # Predict ASL sign
                 prediction, confidence = self.predict_asl_sign(hand_data['organized_landmarks'])
                 
@@ -84,24 +99,17 @@ class ASLSubtitleGenerator:
                     if len(self.recent_predictions) > self.max_recent:
                         self.recent_predictions.pop(0)
                     
-                    print(f"Raw prediction: {prediction} (Confidence: {confidence:.2f})")
-                    
                     # Get most common prediction from recent ones
                     if self.recent_predictions:
                         from collections import Counter
                         counter = Counter(self.recent_predictions)
                         smoothed_prediction = counter.most_common(1)[0][0]
-                        print(f"Smoothed prediction: {smoothed_prediction}")
                         return smoothed_prediction, confidence
-            else:
-                print("No hands detected in frame")
             
             return None, 0.0
             
         except Exception as e:
             print(f"Error processing frame: {e}")
-            import traceback
-            traceback.print_exc()
             return None, 0.0
         
     def predict_asl_sign(self, landmarks):
