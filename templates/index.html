@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASL Video Call</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="video-container">
+            <div class="video-wrapper">
+                <video id="localVideo" autoplay playsinline muted></video>
+                <div class="video-overlay">
+                    <span class="participant-label">You</span>
+                </div>
+            </div>
+            <div class="video-wrapper">
+                <video id="remoteVideo" autoplay playsinline></video>
+                <div class="video-overlay">
+                    <span class="participant-label">Peer</span>
+                    <div id="subtitles" class="subtitles"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <input type="text" id="roomId" placeholder="Enter Room ID">
+            <button id="joinBtn">Join Room</button>
+            <button id="leaveBtn" disabled>Leave Room</button>
+            <button id="muteBtn">Mute</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='js/webrtc.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

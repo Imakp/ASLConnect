@@ -55,9 +55,9 @@ def main():
     # Run recognition command
     run_parser = subparsers.add_parser('run', help='Run real-time ASL recognition')
     run_parser.add_argument('--model', type=str, default='asl_mlp_multi_hand_model.joblib', 
-                           help='Model file name')
+                           help='Model file name (stored in asl_model directory)')
     run_parser.add_argument('--scaler', type=str, default='hand_landmarks_scaler.joblib', 
-                           help='Scaler file name')
+                           help='Scaler file name (stored in asl_model directory)')
     run_parser.add_argument('--multi-hand', action='store_true', default=True,
                            help='Use multi-hand model for recognition')
     

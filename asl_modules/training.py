@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, classification_report, confusion_matrix
-from .utils import save_model, get_project_root
+from .utils import save_model, get_model_dir
 from .preprocessing import load_and_preprocess_data
 
 def train_mlp_classifier(X_train, y_train, hidden_layer_size=128, max_iter=300, random_state=42, is_multi_hand=False):
@@ -174,6 +174,10 @@ def plot_confusion_matrix(y_test, y_pred, save_path=None, is_multi_hand=False):
     
     # Save the plot if a path is provided
     if save_path:
+        # Ensure the directory exists
+        save_dir = os.path.dirname(save_path)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         plt.savefig(save_path, bbox_inches='tight')
         print(f"Confusion matrix saved to {save_path}")
     
@@ -227,7 +231,8 @@ def train_and_evaluate_model(csv_file="asl_landmarks_dataset.csv", hidden_layer_
         metrics, y_pred = evaluate_model(model, X_test, y_test, is_multi_hand)
         
         # Plot confusion matrix
-        confusion_matrix_path = os.path.join(get_project_root(), cm_filename)
+        # Update confusion matrix path to use model directory
+        confusion_matrix_path = os.path.join(get_model_dir(), cm_filename)
         plot_confusion_matrix(y_test, y_pred, save_path=confusion_matrix_path, is_multi_hand=is_multi_hand)
         
         # Save the trained model

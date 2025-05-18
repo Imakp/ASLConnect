@@ -79,6 +79,21 @@ def normalize_landmarks(landmarks, multi_hand=False):
                 
         return normalized_hands
 
+def get_model_dir():
+    """
+    Get the directory for storing model files.
+    Creates the directory if it doesn't exist.
+    
+    Returns:
+    --------
+    model_dir : str
+        Absolute path to the model directory
+    """
+    model_dir = os.path.join(get_project_root(), 'asl_model')
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+    return model_dir
+
 def save_model(model, filename, base_dir=None):
     """
     Save a model to disk using joblib.
@@ -90,10 +105,10 @@ def save_model(model, filename, base_dir=None):
     filename : str
         Filename to save the model
     base_dir : str, optional
-        Base directory (if None, uses the current file's directory)
+        Base directory (if None, uses the model directory)
     """
     if base_dir is None:
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = get_model_dir()
     
     filepath = os.path.join(base_dir, filename)
     joblib.dump(model, filepath)
@@ -108,7 +123,7 @@ def load_model(filename, base_dir=None):
     filename : str
         Filename of the model to load
     base_dir : str, optional
-        Base directory (if None, uses the current file's directory)
+        Base directory (if None, uses the model directory)
         
     Returns:
     --------
@@ -116,7 +131,7 @@ def load_model(filename, base_dir=None):
         Loaded model
     """
     if base_dir is None:
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = get_model_dir()
     
     filepath = os.path.join(base_dir, filename)
     
@@ -155,7 +170,9 @@ def initialize_mediapipe_hands(max_num_hands=2, min_detection_confidence=0.7, mi
         static_image_mode=False,
         max_num_hands=max_num_hands,
         min_detection_confidence=min_detection_confidence,
-        min_tracking_confidence=min_tracking_confidence
+        min_tracking_confidence=min_tracking_confidence,
+        # Add model complexity parameter to improve accuracy
+        model_complexity=1
     )
     mp_drawing = mp.solutions.drawing_utils
     mp_drawing_styles = mp.solutions.drawing_styles
@@ -194,7 +211,7 @@ def get_project_root():
     """
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def process_hand_landmarks(results):
+def process_hand_landmarks(results, image_width=640, image_height=480):
     """
     Process MediaPipe hand detection results to extract and organize landmarks.
     
@@ -202,6 +219,10 @@ def process_hand_landmarks(results):
     -----------
     results : mediapipe.python.solutions.hands.process() results
         Results from MediaPipe hand detection
+    image_width : int
+        Width of the input image (default: 640)
+    image_height : int
+        Height of the input image (default: 480)
         
     Returns:
     --------
@@ -218,7 +239,8 @@ def process_hand_landmarks(results):
         'multi_handedness': results.multi_handedness,
         'organized_landmarks': {'Left': None, 'Right': None},
         'hand_count': 0,
-        'orientation_confidence': {'Left': 0.0, 'Right': 0.0}
+        'orientation_confidence': {'Left': 0.0, 'Right': 0.0},
+        'image_dimensions': (image_width, image_height)
     }
     
     if results.multi_hand_landmarks:
