@@ -27,16 +27,34 @@ thread_pool = eventlet.greenpool.GreenPool(size=10)
 
 # Flag to track if initialization is complete
 init_complete = False
+init_failed = False
+init_error = None
+init_timeout = 60  # Timeout in seconds
 
 # Initialize the subtitle generator in a separate thread
 def init_subtitle_generator():
-    global subtitle_generator, init_complete
-    subtitle_generator = ASLSubtitleGenerator()
-    # Wait for model to load
-    while not subtitle_generator.model_ready:
-        time.sleep(0.5)
-    init_complete = True
-    print("ASL Subtitle Generator initialization complete!")
+    global subtitle_generator, init_complete, init_failed, init_error
+    try:
+        print("Starting ASL Subtitle Generator initialization...")
+        subtitle_generator = ASLSubtitleGenerator()
+        
+        # Wait for model to load with timeout
+        start_time = time.time()
+        while not subtitle_generator.model_ready:
+            time.sleep(0.5)
+            # Check for timeout
+            if time.time() - start_time > init_timeout:
+                init_failed = True
+                init_error = "Initialization timed out after {} seconds".format(init_timeout)
+                print(init_error)
+                return
+                
+        init_complete = True
+        print("ASL Subtitle Generator initialization complete!")
+    except Exception as e:
+        init_failed = True
+        init_error = str(e)
+        print(f"ASL Subtitle Generator initialization failed: {e}")
 
 # Start initialization in a background thread
 init_thread = threading.Thread(target=init_subtitle_generator)
@@ -57,7 +75,11 @@ def on_join(data):
     emit('user_joined', {'room': room}, room=room)
     
     # Inform client about initialization status
-    emit('init_status', {'complete': init_complete})
+    emit('init_status', {
+        'complete': init_complete,
+        'failed': init_failed,
+        'error': init_error
+    })
 
 @socketio.on('leave')
 def on_leave(data):
@@ -120,7 +142,11 @@ def handle_frame(data):
 @socketio.on('check_init_status')
 def check_init_status():
     """Check if initialization is complete"""
-    emit('init_status', {'complete': init_complete})
+    emit('init_status', {
+        'complete': init_complete,
+        'failed': init_failed,
+        'error': init_error
+    })
 
 if __name__ == '__main__':
     # Use PORT environment variable provided by Render, or default to 5000

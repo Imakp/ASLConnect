@@ -6,6 +6,7 @@ from asl_modules.utils import load_model
 import time
 import os
 import threading
+import traceback
 
 class ASLSubtitleGenerator:
     """
@@ -40,6 +41,7 @@ class ASLSubtitleGenerator:
         self.model = None
         self.scaler = None
         self.model_ready = False
+        self.init_error = None
         
         # Start loading models in a separate thread
         self._load_models_async(model_filename, scaler_filename)
@@ -49,12 +51,29 @@ class ASLSubtitleGenerator:
         def load_models():
             try:
                 print("Loading ML models...")
+                # Check if model files exist
+                model_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'asl_model')
+                model_path = os.path.join(model_dir, model_filename)
+                scaler_path = os.path.join(model_dir, scaler_filename)
+                
+                if not os.path.exists(model_path):
+                    raise FileNotFoundError(f"Model file not found: {model_path}")
+                
+                if not os.path.exists(scaler_path):
+                    raise FileNotFoundError(f"Scaler file not found: {scaler_path}")
+                
+                print(f"Loading model from {model_path}")
                 self.model = load_model(model_filename)
+                
+                print(f"Loading scaler from {scaler_path}")
                 self.scaler = load_model(scaler_filename)
+                
                 self.model_ready = True
                 print("ML models loaded successfully!")
             except Exception as e:
+                self.init_error = str(e)
                 print(f"Error loading models: {e}")
+                print(traceback.format_exc())
         
         # Start loading in a separate thread
         thread = threading.Thread(target=load_models)
@@ -151,6 +170,7 @@ class ASLSubtitleGenerator:
             
         except Exception as e:
             print(f"Error processing frame: {e}")
+            print(traceback.format_exc())
             return None, 0.0
         
     def predict_asl_sign(self, landmarks):
@@ -209,4 +229,5 @@ class ASLSubtitleGenerator:
             return prediction, confidence
         except Exception as e:
             print(f"Error in prediction: {e}")
+            print(traceback.format_exc())
             return None, 0.0

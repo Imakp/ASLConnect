@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const webrtc = new WebRTCHandler(socket);
     let frameInterval = null;
     let isInitialized = false;
+    let initFailed = false;
     
     // UI elements
     const joinBtn = document.getElementById('joinBtn');
@@ -31,10 +32,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle initialization status updates
     socket.on('init_status', (data) => {
         isInitialized = data.complete;
+        initFailed = data.failed;
+        
         if (isInitialized) {
             statusElement.textContent = 'ASL Recognition Ready';
             statusElement.style.color = 'green';
             clearInterval(statusInterval);
+        } else if (initFailed) {
+            statusElement.textContent = 'ASL Recognition Failed: ' + (data.error || 'Unknown error');
+            statusElement.style.color = 'red';
+            clearInterval(statusInterval);
+            console.error('ASL Recognition initialization failed:', data.error);
         } else {
             statusElement.textContent = 'Loading ASL Recognition...';
             statusElement.style.color = 'orange';
