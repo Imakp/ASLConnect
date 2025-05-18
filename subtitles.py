@@ -4,6 +4,8 @@ import numpy as np
 from asl_modules.utils import initialize_mediapipe_hands, process_hand_landmarks, normalize_landmarks
 from asl_modules.utils import load_model
 import time
+import os
+import threading
 
 class ASLSubtitleGenerator:
     """
@@ -21,9 +23,7 @@ class ASLSubtitleGenerator:
         scaler_filename : str
             Filename of the fitted scaler
         """
-        # Load model and scaler
-        self.model = load_model(model_filename)
-        self.scaler = load_model(scaler_filename)
+        print("Initializing ASL Subtitle Generator...")
         
         # Initialize MediaPipe Hands
         self.hands, self.mp_hands, _, _ = initialize_mediapipe_hands(max_num_hands=2)
@@ -35,6 +35,31 @@ class ASLSubtitleGenerator:
         # For rate limiting
         self.last_process_time = 0
         self.process_interval = 0.2  # Process at most 5 frames per second
+        
+        # Load model and scaler in a separate thread to avoid blocking
+        self.model = None
+        self.scaler = None
+        self.model_ready = False
+        
+        # Start loading models in a separate thread
+        self._load_models_async(model_filename, scaler_filename)
+    
+    def _load_models_async(self, model_filename, scaler_filename):
+        """Load models in a separate thread"""
+        def load_models():
+            try:
+                print("Loading ML models...")
+                self.model = load_model(model_filename)
+                self.scaler = load_model(scaler_filename)
+                self.model_ready = True
+                print("ML models loaded successfully!")
+            except Exception as e:
+                print(f"Error loading models: {e}")
+        
+        # Start loading in a separate thread
+        thread = threading.Thread(target=load_models)
+        thread.daemon = True
+        thread.start()
         
     def process_frame(self, frame_data):
         """
@@ -52,6 +77,10 @@ class ASLSubtitleGenerator:
         confidence : float
             Confidence score for the prediction
         """
+        # Check if models are loaded
+        if not self.model_ready:
+            return None, 0.0
+            
         # Rate limiting to prevent overloading
         current_time = time.time()
         if current_time - self.last_process_time < self.process_interval:
@@ -128,6 +157,10 @@ class ASLSubtitleGenerator:
         confidence : float
             Confidence score for the prediction
         """
+        # Check if models are loaded
+        if not self.model_ready:
+            return None, 0.0
+            
         # Normalize the landmarks
         normalized_hands = normalize_landmarks(landmarks, multi_hand=True)
         

@@ -17,11 +17,22 @@ app.config['SECRET_KEY'] = os.urandom(24)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # Initialize managers
-subtitle_generator = ASLSubtitleGenerator()
+# Load models in a separate thread to avoid blocking the main thread
+subtitle_generator = None
 video_manager = VideoCallManager()
 
 # Create a thread pool for handling blocking operations
 thread_pool = eventlet.greenpool.GreenPool(size=10)
+
+# Initialize the subtitle generator in a separate thread
+def init_subtitle_generator():
+    global subtitle_generator
+    subtitle_generator = ASLSubtitleGenerator()
+
+# Start initialization in a background thread
+init_thread = threading.Thread(target=init_subtitle_generator)
+init_thread.daemon = True
+init_thread.start()
 
 @app.route('/')
 def index():
@@ -64,6 +75,13 @@ def handle_ice_candidate(data):
 
 def process_frame_async(frame_data, room, user_id):
     """Process frame in a separate thread to avoid blocking the main loop"""
+    global subtitle_generator
+    
+    # Check if subtitle generator is initialized
+    if subtitle_generator is None:
+        # If not ready yet, return without processing
+        return
+    
     prediction, confidence = subtitle_generator.process_frame(frame_data)
     
     if prediction and confidence > 0.7:
