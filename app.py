@@ -1,3 +1,7 @@
+# Add these two lines at the very top of the file
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import os
@@ -9,7 +13,7 @@ from video_call import VideoCallManager
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')  # Explicitly set async_mode
 
 # Initialize managers
 subtitle_generator = ASLSubtitleGenerator()
