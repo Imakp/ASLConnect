@@ -77,4 +77,6 @@ def handle_frame(data):
         print(f"ASL Prediction: {prediction} (Confidence: {confidence:.2f})")
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    # Use PORT environment variable provided by Render, or default to 5000
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, host='0.0.0.0', port=port)

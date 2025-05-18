@@ -1,9 +1,22 @@
 /asl_env
 /dataset
+asl_env/
+asl_env.bak/
 
 .DS_Store
 
-__pycache__
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.DS_Store
 
 asl_landmarks_dataset.csv
 # multi_hand_confusion_matrix.png
