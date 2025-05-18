@@ -11,6 +11,7 @@ import numpy as np
 from subtitles import ASLSubtitleGenerator
 from video_call import VideoCallManager
 import threading
+import time
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -24,10 +25,18 @@ video_manager = VideoCallManager()
 # Create a thread pool for handling blocking operations
 thread_pool = eventlet.greenpool.GreenPool(size=10)
 
+# Flag to track if initialization is complete
+init_complete = False
+
 # Initialize the subtitle generator in a separate thread
 def init_subtitle_generator():
-    global subtitle_generator
+    global subtitle_generator, init_complete
     subtitle_generator = ASLSubtitleGenerator()
+    # Wait for model to load
+    while not subtitle_generator.model_ready:
+        time.sleep(0.5)
+    init_complete = True
+    print("ASL Subtitle Generator initialization complete!")
 
 # Start initialization in a background thread
 init_thread = threading.Thread(target=init_subtitle_generator)
@@ -46,6 +55,9 @@ def on_join(data):
     join_room(room)
     video_manager.add_user_to_room(room, request.sid)
     emit('user_joined', {'room': room}, room=room)
+    
+    # Inform client about initialization status
+    emit('init_status', {'complete': init_complete})
 
 @socketio.on('leave')
 def on_leave(data):
@@ -78,13 +90,13 @@ def process_frame_async(frame_data, room, user_id):
     global subtitle_generator
     
     # Check if subtitle generator is initialized
-    if subtitle_generator is None:
+    if subtitle_generator is None or not subtitle_generator.model_ready:
         # If not ready yet, return without processing
         return
     
     prediction, confidence = subtitle_generator.process_frame(frame_data)
     
-    if prediction and confidence > 0.7:
+    if prediction and confidence > 0.6:  # Lower threshold to catch more signs
         # Emit subtitle to all users in room including sender
         socketio.emit('subtitle', {
             'text': prediction,
@@ -104,6 +116,11 @@ def handle_frame(data):
     
     # Offload the processing to a green thread to avoid blocking
     thread_pool.spawn_n(process_frame_async, frame_data, room, user_id)
+
+@socketio.on('check_init_status')
+def check_init_status():
+    """Check if initialization is complete"""
+    emit('init_status', {'complete': init_complete})
 
 if __name__ == '__main__':
     # Use PORT environment variable provided by Render, or default to 5000

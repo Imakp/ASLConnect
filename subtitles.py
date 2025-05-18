@@ -79,6 +79,7 @@ class ASLSubtitleGenerator:
         """
         # Check if models are loaded
         if not self.model_ready:
+            print("Models not yet loaded, skipping frame processing")
             return None, 0.0
             
         # Rate limiting to prevent overloading
@@ -95,6 +96,7 @@ class ASLSubtitleGenerator:
             image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
             
             if image is None:
+                print("Failed to decode image")
                 return None, 0.0
             
             # Resize image to reduce processing time
@@ -114,16 +116,26 @@ class ASLSubtitleGenerator:
             results = self.hands.process(image_rgb)
             image_rgb.flags.writeable = True
             
+            # Check if hands are detected
+            if not results.multi_hand_landmarks:
+                return None, 0.0
+                
             # Process hand landmarks with image dimensions
             hand_data = process_hand_landmarks(results, image_width, image_height)
+            
+            # Debug print
+            print(f"Detected {hand_data['hand_count']} hands")
             
             # Check if hands are detected
             if hand_data['hand_count'] > 0:
                 # Predict ASL sign
                 prediction, confidence = self.predict_asl_sign(hand_data['organized_landmarks'])
                 
+                # Debug print
+                print(f"Raw prediction: {prediction}, confidence: {confidence:.2f}")
+                
                 # Add to recent predictions for smoothing
-                if confidence >= 0.7:  # Confidence threshold
+                if confidence >= 0.6:  # Lower threshold to catch more signs
                     self.recent_predictions.append(prediction)
                     if len(self.recent_predictions) > self.max_recent:
                         self.recent_predictions.pop(0)
@@ -161,36 +173,40 @@ class ASLSubtitleGenerator:
         if not self.model_ready:
             return None, 0.0
             
-        # Normalize the landmarks
-        normalized_hands = normalize_landmarks(landmarks, multi_hand=True)
-        
-        # Prepare features vector with both hands
-        feature_vector = np.zeros((1, 21 * 3 * 2))  # 21 landmarks, 3 coordinates, 2 hands
-        
-        # Add left hand features if available
-        if normalized_hands.get('Left') is not None:
-            left_features = normalized_hands['Left'].flatten()
-            feature_vector[0, :left_features.size] = left_features
-        
-        # Add right hand features if available
-        if normalized_hands.get('Right') is not None:
-            right_features = normalized_hands['Right'].flatten()
-            feature_vector[0, 21*3:21*3+right_features.size] = right_features
-        
-        # Add hand count as a feature
-        hand_count = sum(1 for hand in normalized_hands.values() if hand is not None)
-        
-        # Create the final feature vector with hand count
-        final_features = np.hstack([np.array([[hand_count]]), feature_vector])
-        
-        # Scale the features
-        scaled_features = self.scaler.transform(final_features)
-        
-        # Make prediction
-        prediction = self.model.predict(scaled_features)[0]
-        
-        # Get prediction probability
-        probabilities = self.model.predict_proba(scaled_features)[0]
-        confidence = np.max(probabilities)
-        
-        return prediction, confidence
+        try:
+            # Normalize the landmarks
+            normalized_hands = normalize_landmarks(landmarks, multi_hand=True)
+            
+            # Prepare features vector with both hands
+            feature_vector = np.zeros((1, 21 * 3 * 2))  # 21 landmarks, 3 coordinates, 2 hands
+            
+            # Add left hand features if available
+            if normalized_hands.get('Left') is not None:
+                left_features = normalized_hands['Left'].flatten()
+                feature_vector[0, :left_features.size] = left_features
+            
+            # Add right hand features if available
+            if normalized_hands.get('Right') is not None:
+                right_features = normalized_hands['Right'].flatten()
+                feature_vector[0, 21*3:21*3+right_features.size] = right_features
+            
+            # Add hand count as a feature
+            hand_count = sum(1 for hand in normalized_hands.values() if hand is not None)
+            
+            # Create the final feature vector with hand count
+            final_features = np.hstack([np.array([[hand_count]]), feature_vector])
+            
+            # Scale the features
+            scaled_features = self.scaler.transform(final_features)
+            
+            # Make prediction
+            prediction = self.model.predict(scaled_features)[0]
+            
+            # Get prediction probability
+            probabilities = self.model.predict_proba(scaled_features)[0]
+            confidence = np.max(probabilities)
+            
+            return prediction, confidence
+        except Exception as e:
+            print(f"Error in prediction: {e}")
+            return None, 0.0

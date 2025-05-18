@@ -58,6 +58,9 @@ video {
     max-width: 80%;
     opacity: 0;
     transition: opacity 0.3s;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 100;
 }
 
 .subtitles.visible {
@@ -69,4 +72,12 @@ video {
     gap: 10px;
     justify-content: center;
     margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.status-message {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
 }
