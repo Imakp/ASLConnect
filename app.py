@@ -1,7 +1,3 @@
-# Add these two lines at the very top of the file
-import eventlet
-eventlet.monkey_patch()
-
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 import os
@@ -10,83 +6,14 @@ import cv2
 import numpy as np
 from subtitles import ASLSubtitleGenerator
 from video_call import VideoCallManager
-import threading
-import time
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Initialize managers
-# Load models in a separate thread to avoid blocking the main thread
-subtitle_generator = None
+subtitle_generator = ASLSubtitleGenerator()
 video_manager = VideoCallManager()
-
-# Create a thread pool for handling blocking operations
-thread_pool = eventlet.greenpool.GreenPool(size=10)
-
-# Flag to track if initialization is complete
-init_complete = False
-init_failed = False
-init_error = None
-
-# Initialize the subtitle generator in a separate thread
-def init_subtitle_generator():
-    global subtitle_generator, init_complete, init_failed, init_error
-    try:
-        print("Starting ASL Subtitle Generator initialization...")
-        
-        # Check if model files exist
-        model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'asl_model')
-        model_path = os.path.join(model_dir, 'asl_mlp_multi_hand_model.joblib')
-        scaler_path = os.path.join(model_dir, 'hand_landmarks_scaler.joblib')
-        
-        if not os.path.exists(model_dir):
-            os.makedirs(model_dir)
-            init_failed = True
-            init_error = f"Model directory does not exist: {model_dir}"
-            print(init_error)
-            return
-            
-        if not os.path.exists(model_path):
-            init_failed = True
-            init_error = f"Model file not found: {model_path}"
-            print(init_error)
-            return
-            
-        if not os.path.exists(scaler_path):
-            init_failed = True
-            init_error = f"Scaler file not found: {scaler_path}"
-            print(init_error)
-            return
-            
-        print(f"Model files found. Initializing ASL Subtitle Generator...")
-        subtitle_generator = ASLSubtitleGenerator()
-        
-        # Wait for model to load with timeout
-        start_time = time.time()
-        timeout = 60  # 60 seconds timeout
-        while not subtitle_generator.model_ready:
-            time.sleep(0.5)
-            if time.time() - start_time > timeout:
-                init_failed = True
-                init_error = f"Model loading timed out after {timeout} seconds"
-                print(init_error)
-                return
-                
-        init_complete = True
-        print("ASL Subtitle Generator initialization complete!")
-    except Exception as e:
-        init_failed = True
-        init_error = str(e)
-        print(f"ASL Subtitle Generator initialization failed: {e}")
-        import traceback
-        print(traceback.format_exc())
-
-# Start initialization in a background thread
-init_thread = threading.Thread(target=init_subtitle_generator)
-init_thread.daemon = True
-init_thread.start()
 
 @app.route('/')
 def index():
@@ -100,13 +27,6 @@ def on_join(data):
     join_room(room)
     video_manager.add_user_to_room(room, request.sid)
     emit('user_joined', {'room': room}, room=room)
-    
-    # Inform client about initialization status
-    emit('init_status', {
-        'complete': init_complete,
-        'failed': init_failed,
-        'error': init_error
-    })
 
 @socketio.on('leave')
 def on_leave(data):
@@ -134,28 +54,6 @@ def handle_ice_candidate(data):
     room = data['room']
     emit('ice_candidate', data, room=room, skip_sid=request.sid)
 
-def process_frame_async(frame_data, room, user_id):
-    """Process frame in a separate thread to avoid blocking the main loop"""
-    global subtitle_generator
-    
-    # Check if subtitle generator is initialized
-    if subtitle_generator is None or not subtitle_generator.model_ready:
-        # If not ready yet, return without processing
-        return
-    
-    prediction, confidence = subtitle_generator.process_frame(frame_data)
-    
-    if prediction and confidence > 0.6:  # Lower threshold to catch more signs
-        # Emit subtitle to all users in room including sender
-        socketio.emit('subtitle', {
-            'text': prediction,
-            'confidence': confidence,
-            'user_id': user_id
-        }, room=room)
-        
-        # Log successful predictions for debugging
-        print(f"ASL Prediction: {prediction} (Confidence: {confidence:.2f})")
-
 @socketio.on('frame')
 def handle_frame(data):
     """Process video frame for ASL recognition"""
@@ -163,19 +61,20 @@ def handle_frame(data):
     room = data['room']
     user_id = request.sid
     
-    # Offload the processing to a green thread to avoid blocking
-    thread_pool.spawn_n(process_frame_async, frame_data, room, user_id)
-
-@socketio.on('check_init_status')
-def check_init_status():
-    """Check if initialization is complete"""
-    emit('init_status', {
-        'complete': init_complete,
-        'failed': init_failed,
-        'error': init_error
-    })
+    # Process frame for ASL recognition
+    prediction, confidence = subtitle_generator.process_frame(frame_data)
+    
+    # Use the same confidence threshold as in inference.py (0.7 instead of 0.85)
+    if prediction and confidence > 0.7:
+        # Emit subtitle to all users in room including sender (for debugging)
+        emit('subtitle', {
+            'text': prediction,
+            'confidence': confidence,
+            'user_id': user_id  # Include user ID so client knows which video to show subtitle on
+        }, room=room)
+        
+        # Log successful predictions for debugging
+        print(f"ASL Prediction: {prediction} (Confidence: {confidence:.2f})")
 
 if __name__ == '__main__':
-    # Use PORT environment variable provided by Render, or default to 5000
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host='0.0.0.0', port=port)
+    socketio.run(app, host='0.0.0.0', port=8000, debug=True)
