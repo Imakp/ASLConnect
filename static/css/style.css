@@ -64,9 +64,77 @@ video {
     opacity: 1;
 }
 
+.connection-status {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#statusMessage {
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Make sure the controls are properly styled */
 .controls {
     display: flex;
     gap: 10px;
     justify-content: center;
     margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.controls input {
+    padding: 10px 15px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    min-width: 200px;
+}
+
+.controls button {
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: none;
+    background-color: #4361ee;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.controls button:hover {
+    background-color: #3a0ca3;
+}
+
+.controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    flex: 1;
+    text-align: center;
+    margin: 0;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    color: #4361ee;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.back-button:hover {
+    color: #3a0ca3;
+}
+
+.back-button i {
+    margin-right: 5px;
 }

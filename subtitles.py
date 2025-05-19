@@ -102,8 +102,7 @@ class ASLSubtitleGenerator:
             print(f"Error processing frame: {e}")
             import traceback
             traceback.print_exc()
-            return None, 0.0
-        
+            return None, 0.0        
     def predict_asl_sign(self, landmarks):
         """
         Predict the ASL sign from hand landmarks.

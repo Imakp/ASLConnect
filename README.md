@@ -180,3 +180,20 @@ Key Components:
 - **asl_modules/inference.py**: Real-time prediction
 
 Thank you for your interest in the ASL Recognition System!
+
+services:
+  - type: web
+    name: asl-demo
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --worker-class eventlet -w 1 
+    --timeout 120 --keep-alive 65 --log-level debug app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: WEB_CONCURRENCY
+        value: 1
+    resources:
+      memory: 512M
+
+
