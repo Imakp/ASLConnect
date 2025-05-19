@@ -134,23 +134,9 @@ def handle_ice_candidate(data):
     room = data['room']
     emit('ice_candidate', data, room=room, skip_sid=request.sid)
 
-# Add this to your app.py file
-
-# Default confidence threshold
-confidence_threshold = 0.7
-
-@socketio.on('set_threshold')
-def set_threshold(data):
-    """Handle confidence threshold adjustment"""
-    global confidence_threshold
-    threshold = data.get('threshold', 0.7)
-    confidence_threshold = max(0.5, min(0.95, threshold))  # Clamp between 0.5 and 0.95
-    print(f"Confidence threshold set to: {confidence_threshold}")
-
-# Then modify your process_frame_async function
 def process_frame_async(frame_data, room, user_id):
     """Process frame in a separate thread to avoid blocking the main loop"""
-    global subtitle_generator, confidence_threshold
+    global subtitle_generator
     
     # Check if subtitle generator is initialized
     if subtitle_generator is None or not subtitle_generator.model_ready:
@@ -159,11 +145,12 @@ def process_frame_async(frame_data, room, user_id):
     
     prediction, confidence = subtitle_generator.process_frame(frame_data)
     
-    if prediction and confidence > confidence_threshold:  # Use dynamic threshold
+    if prediction and confidence > 0.6:  # Lower threshold to catch more signs
         # Emit subtitle to all users in room including sender
         socketio.emit('subtitle', {
             'text': prediction,
-            'confidence': float(confidence)
+            'confidence': confidence,
+            'user_id': user_id
         }, room=room)
         
         # Log successful predictions for debugging
