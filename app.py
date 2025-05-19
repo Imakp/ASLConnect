@@ -45,6 +45,11 @@ def get_rooms():
         'count': len(rooms)
     }
 
+@app.route('/login')
+def login():
+    """Serve the login page"""
+    return render_template('login.html')
+
 # Socket event handlers remain unchanged
 @socketio.on('join')
 def on_join(data):

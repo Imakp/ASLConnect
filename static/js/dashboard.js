@@ -1,84 +1,83 @@
-// Add this to your existing dashboard.js file
 
 // Content for different tabs
 const tabContents = {
     alphabet: [
         // Page 1
         [
-            { letter: 'A', image: 'a.png' },
-            { letter: 'B', image: 'b.png' },
-            { letter: 'C', image: 'c.png' },
-            { letter: 'D', image: 'd.png' },
-            { letter: 'E', image: 'e.png' },
-            { letter: 'F', image: 'f.png' },
-            { letter: 'G', image: 'g.png' },
-            { letter: 'H', image: 'h.png' },
-            { letter: 'I', image: 'i.png' },
-            { letter: 'J', image: 'j.png' },
-            { letter: 'K', image: 'k.png' },
-            { letter: 'L', image: 'l.png' }
+            { letter: 'A', image: '/static/images/public/alphabets/A_test.jpg' },
+            { letter: 'B', image: '/static/images/public/alphabets/B_test.jpg' },
+            { letter: 'C', image: '/static/images/public/alphabets/C_test.jpg' },
+            { letter: 'D', image: '/static/images/public/alphabets/D_test.jpg' },
+            { letter: 'E', image: '/static/images/public/alphabets/E_test.jpg' },
+            { letter: 'F', image: '/static/images/public/alphabets/F_test.jpg' },
+            { letter: 'G', image: '/static/images/public/alphabets/G_test.jpg' },
+            { letter: 'H', image: '/static/images/public/alphabets/H_test.jpg' },
+            { letter: 'I', image: '/static/images/public/alphabets/I_test.jpg' },
+            { letter: 'J', image: '/static/images/public/alphabets/J_test.jpg' },
+            { letter: 'K', image: '/static/images/public/alphabets/K_test.jpg' },
+            { letter: 'L', image: '/static/images/public/alphabets/L_test.jpg' }
         ],
         // Page 2
         [
-            { letter: 'M', image: 'm.png' },
-            { letter: 'N', image: 'n.png' },
-            { letter: 'O', image: 'o.png' },
-            { letter: 'P', image: 'p.png' },
-            { letter: 'Q', image: 'q.png' },
-            { letter: 'R', image: 'r.png' },
-            { letter: 'S', image: 's.png' },
-            { letter: 'T', image: 't.png' },
-            { letter: 'U', image: 'u.png' },
-            { letter: 'V', image: 'v.png' },
-            { letter: 'W', image: 'w.png' },
-            { letter: 'X', image: 'x.png' }
+            { letter: 'M', image: '/static/images/public/alphabets/M_test.jpg' },
+            { letter: 'N', image: '/static/images/public/alphabets/N_test.jpg' },
+            { letter: 'O', image: '/static/images/public/alphabets/O_test.jpg' },
+            { letter: 'P', image: '/static/images/public/alphabets/P_test.jpg' },
+            { letter: 'Q', image: '/static/images/public/alphabets/Q_test.jpg' },
+            { letter: 'R', image: '/static/images/public/alphabets/R_test.jpg' },
+            { letter: 'S', image: '/static/images/public/alphabets/S_test.jpg' },
+            { letter: 'T', image: '/static/images/public/alphabets/T_test.jpg' },
+            { letter: 'U', image: '/static/images/public/alphabets/U_test.jpg' },
+            { letter: 'V', image: '/static/images/public/alphabets/V_test.jpg' },
+            { letter: 'W', image: '/static/images/public/alphabets/W_test.jpg' },
+            { letter: 'X', image: '/static/images/public/alphabets/X_test.jpg' }
         ],
         // Page 3
         [
-            { letter: 'Y', image: 'y.png' },
-            { letter: 'Z', image: 'z.png' }
+            { letter: 'Y', image: '/static/images/public/alphabets/Y_test.jpg' },
+            { letter: 'Z', image: '/static/images/public/alphabets/Z_test.jpg' }
         ]
     ],
     numbers: [
         // Page 1
         [
-            { letter: '0', image: 'num0.png' },
-            { letter: '1', image: 'num1.png' },
-            { letter: '2', image: 'num2.png' },
-            { letter: '3', image: 'num3.png' },
-            { letter: '4', image: 'num4.png' },
-            { letter: '5', image: 'num5.png' },
-            { letter: '6', image: 'num6.png' },
-            { letter: '7', image: 'num7.png' },
-            { letter: '8', image: 'num8.png' },
-            { letter: '9', image: 'num9.png' },
-            { letter: '10', image: 'num10.png' }
+            { letter: '0', image: '/static/images/public/numbers/Sign 0.jpeg' },
+            { letter: '1', image: '/static/images/public/numbers/Sign 1.jpeg' },
+            { letter: '2', image: '/static/images/public/numbers/Sign 2.jpeg' },
+            { letter: '3', image: '/static/images/public/numbers/Sign 3.jpeg' },
+            { letter: '4', image: '/static/images/public/numbers/Sign 4.jpeg' },
+            { letter: '5', image: '/static/images/public/numbers/Sign 5.jpeg' },
+            { letter: '6', image: '/static/images/public/numbers/Sign 6.jpeg' },
+            { letter: '7', image: '/static/images/public/numbers/Sign 7.jpeg' },
+            { letter: '8', image: '/static/images/public/numbers/Sign 8.jpeg' },
+            { letter: '9', image: '/static/images/public/numbers/Sign 9.jpeg' },
+            // { letter: '10', image: 'num10.png' }
         ]
     ],
     'common-phrases': [
         // Page 1
         [
-            { letter: 'Thank You', image: 'thank_you.png' },
-            { letter: 'Please', image: 'please.png' },
-            { letter: 'Sorry', image: 'sorry.png' },
-            { letter: 'Help', image: 'help.png' },
-            { letter: 'Yes', image: 'yes.png' },
-            { letter: 'No', image: 'no.png' },
-            { letter: 'Love', image: 'love.png' },
-            { letter: 'Friend', image: 'friend.png' }
+            { letter: 'Thank You', image: '/static/images/public/words/thanku.png' },
+            { letter: 'Please', image: '/static/images/public/words/please.jpeg' },
+            { letter: 'Sorry', image: '/static/images/public/words/sorry.png' },
+            { letter: 'Help', image: '/static/images/public/phrases/help.png' },
+            { letter: 'Yes', image: '/static/images/public/phrases/yes.png' },
+            { letter: 'No', image: '/static/images/public/phrases/no.png' },
+            { letter: 'Love', image: '/static/images/public/words/love.jpg' },
+            { letter: 'Friend', image: '/static/images/public/phrases/friend.png' }
         ]
     ],
     greetings: [
         // Page 1
         [
-            { letter: 'Hello', image: 'hello.png' },
-            { letter: 'Good Morning', image: 'good_morning.png' },
-            { letter: 'Good Afternoon', image: 'good_afternoon.png' },
-            { letter: 'Good Evening', image: 'good_evening.png' },
-            { letter: 'How are you?', image: 'how_are_you.png' },
-            { letter: 'Nice to meet you', image: 'nice_to_meet_you.png' },
-            { letter: 'Welcome', image: 'welcome.png' },
-            { letter: 'Goodbye', image: 'goodbye.png' }
+            { letter: 'Hello', image: '/static/images/public/words/hello.jpg' },
+            { letter: 'Good Morning', image: '/static/images/public/greetings/good_morning.png' },
+            { letter: 'Good Afternoon', image: '/static/images/public/greetings/good_afternoon.png' },
+            { letter: 'Good Evening', image: '/static/images/public/greetings/good_evening.png' },
+            { letter: 'How are you?', image: '/static/images/public/greetings/how_are_you.png' },
+            { letter: 'Nice to meet you', image: '/static/images/public/greetings/nice_to_meet_you.png' },
+            { letter: 'Welcome', image: '/static/images/public/greetings/welcome.png' },
+            { letter: 'Goodbye', image: '/static/images/public/greetings/goodbye.png' }
         ]
     ]
 };
@@ -170,81 +169,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentPage = 0;
     
     // Function to render alphabet cards
-    // Update the showLetterModal function to include video learning option
-    function showLetterModal(letter, image) {
-        const modal = document.createElement('div');
-        modal.className = 'alphabet-modal';
-        
-        const modalContent = document.createElement('div');
-        modalContent.className = 'alphabet-modal-content';
-        
-        const closeBtn = document.createElement('span');
-        closeBtn.className = 'close-modal';
-        closeBtn.innerHTML = '&times;';
-        closeBtn.onclick = function() {
-            document.body.removeChild(modal);
-        };
-        
-        const letterTitle = document.createElement('h2');
-        letterTitle.className = 'modal-letter-title';
-        letterTitle.textContent = `ASL Sign for "${letter}"`;
-        
-        const letterImageContainer = document.createElement('div');
-        letterImageContainer.className = 'modal-letter-image';
-        
-        const letterImage = document.createElement('img');
-        letterImage.src = image ? `{{ url_for('static', filename='images/asl/${image}') }}` : '#';
-        letterImage.alt = `ASL ${letter}`;
-        
-        letterImageContainer.appendChild(letterImage);
-        
-        const letterDescription = document.createElement('p');
-        letterDescription.className = 'modal-letter-description';
-        letterDescription.textContent = `This is how you sign "${letter}" in American Sign Language. Practice by mimicking the hand position shown in the image or watch a video demonstration.`;
-        
-        const buttonContainer = document.createElement('div');
-        buttonContainer.className = 'modal-buttons';
-        
-        const practiceBtn = document.createElement('button');
-        practiceBtn.className = 'modal-practice-btn';
-        practiceBtn.innerHTML = '<i class="fas fa-camera"></i> Practice with Camera';
-        practiceBtn.onclick = function() {
-            alert('Camera practice feature coming soon!');
-        };
-        
-        const videoBtn = document.createElement('button');
-        videoBtn.className = 'modal-video-btn';
-        videoBtn.innerHTML = '<i class="fas fa-play-circle"></i> Learn by Video';
-        videoBtn.onclick = function() {
-            alert('Video tutorial coming soon!');
-        };
-        
-        buttonContainer.appendChild(videoBtn);
-        buttonContainer.appendChild(practiceBtn);
-        
-        modalContent.appendChild(closeBtn);
-        modalContent.appendChild(letterTitle);
-        modalContent.appendChild(letterImageContainer);
-        modalContent.appendChild(letterDescription);
-        modalContent.appendChild(buttonContainer);
-        
-        modal.appendChild(modalContent);
-        document.body.appendChild(modal);
-        
-        // Add active class after a small delay to trigger animation
-        setTimeout(() => {
-            modal.classList.add('active');
-        }, 10);
-        
-        // Close modal when clicking outside of content
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                document.body.removeChild(modal);
-            }
-        });
-    }
-    
-    // Make sure the alphabet cards have click event listeners
     function renderCards(tab, page) {
         if (!tabContents[tab] || !tabContents[tab][page]) {
             alphabetGrid.innerHTML = '<p>Content coming soon!</p>';
@@ -260,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             card.innerHTML = `
                 <div class="alphabet-image">
-                    <img src="${item.image ? `{{ url_for('static', filename='images/asl/${item.image}') }}` : '#'}" alt="ASL ${item.letter}">
+                    <img src="${item.image}" alt="ASL ${item.letter}">
                 </div>
                 <div class="alphabet-letter">${item.letter}</div>
                 <div class="alphabet-action">Click to learn</div>
