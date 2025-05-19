@@ -57,27 +57,95 @@ const tabContents = {
     'common-phrases': [
         // Page 1
         [
-            { letter: 'Thank You', image: '/static/images/public/words/thanku.png' },
-            { letter: 'Please', image: '/static/images/public/words/please.jpeg' },
-            { letter: 'Sorry', image: '/static/images/public/words/sorry.png' },
-            { letter: 'Help', image: '/static/images/public/phrases/help.png' },
-            { letter: 'Yes', image: '/static/images/public/phrases/yes.png' },
-            { letter: 'No', image: '/static/images/public/phrases/no.png' },
-            { letter: 'Love', image: '/static/images/public/words/love.jpg' },
-            { letter: 'Friend', image: '/static/images/public/phrases/friend.png' }
+            { letter: 'Thank You', image: '/static/images/public/phrases/thanku.png' },
+            { letter: 'Please', image: '/static/images/public/phrases/please.jpeg' },
+            { letter: 'Sorry', image: '/static/images/public/phrases/sorry.png' },
+            { letter: 'Help', image: '/static/images/public/phrases/help.webp' },
+            { letter: 'Yes', image: '/static/images/public/phrases/yes.webp' },
+            { letter: 'No', image: '/static/images/public/phrases/no.gif' },
+            { letter: 'Love', image: '/static/images/public/phrases/love.jpg' },
+            { letter: 'Friend', image: '/static/images/public/phrases/friend.webp' }
         ]
     ],
     greetings: [
         // Page 1
         [
-            { letter: 'Hello', image: '/static/images/public/words/hello.jpg' },
-            { letter: 'Good Morning', image: '/static/images/public/greetings/good_morning.png' },
-            { letter: 'Good Afternoon', image: '/static/images/public/greetings/good_afternoon.png' },
-            { letter: 'Good Evening', image: '/static/images/public/greetings/good_evening.png' },
-            { letter: 'How are you?', image: '/static/images/public/greetings/how_are_you.png' },
-            { letter: 'Nice to meet you', image: '/static/images/public/greetings/nice_to_meet_you.png' },
-            { letter: 'Welcome', image: '/static/images/public/greetings/welcome.png' },
-            { letter: 'Goodbye', image: '/static/images/public/greetings/goodbye.png' }
+            { letter: 'Hello', image: '/static/images/public/greetings/hello.jpg' },
+            { letter: 'Good Morning', image: '/static/images/public/greetings/morning.webp' },
+            { letter: 'Good Afternoon', image: '/static/images/public/greetings/afternoon.jpg' },
+            { letter: 'Good Night', image: '/static/images/public/greetings/night.jpg' },
+            { letter: 'How are you?', image: '/static/images/public/greetings/how_are_u.png' },
+            { letter: 'Nice to meet you', image: '/static/images/public/greetings/nice-to-meet.jpg' },
+            { letter: 'Welcome', image: '/static/images/public/greetings/welcome.webp' },
+            { letter: 'Goodbye', image: '/static/images/public/greetings/goodbye.webp' }
+        ]
+    ],
+    resources: [
+        // Page 1
+        [
+            {
+                letter: "ASL Alphabet A-Z",
+                image: "/static/images/public/resources/alphabet.png",
+                description: "Learn the complete ASL alphabet from A to Z with clear demonstrations.",
+                videoUrl: "https://www.youtube.com/embed/7suKo9kCTus?si=jf8DIScjknRcB72H"
+            },
+            {
+                letter: "ASL Numbers 1-20",
+                image: "/static/images/public/resources/number.jpg",
+                description: "Learn how to sign numbers 1-20 in American Sign Language.",
+                videoUrl: "https://www.youtube.com/embed/SP6maLr2DDI?si=2VI4fplH0lAIO6gs"
+            },
+            {
+                letter: "ASL Colors",
+                image: "/static/images/public/resources/colour.jpg",
+                description: "Learn how to sign different colors in American Sign Language.",
+                videoUrl: "https://www.youtube.com/embed/Dsh0YWwfn-M?si=KG7FdH1V_-Ws6g1R"
+            },
+            {
+                letter: "ASL Family Signs",
+                image: "/static/images/public/resources/family.jpg",
+                description: "Learn signs for family members like mother, father, sister, brother, etc.",
+                videoUrl: "https://www.youtube.com/embed/RdCnFf8BslA?si=Ub6ARX1sWYnFGuFX"
+            },
+            {
+                letter: "ASL Emotions & Feelings",
+                image: "/static/images/public/resources/emotion.png",
+                description: "Learn how to express emotions and feelings in American Sign Language.",
+                videoUrl: "https://www.youtube.com/embed/L-EuYYqMsuU?si=sy45_tlhcIdl9KxF"
+            },
+            {
+                letter: "ASL Common Phrases",
+                image: "/static/images/public/resources/phrase.jpg",
+                description: "Learn everyday phrases and expressions in American Sign Language.",
+                videoUrl: "https://www.youtube.com/embed/jCUaMdXsI7w?si=T6ZtFeYaPYkLk8BU"
+            }
+        ],
+        // Page 2
+        [
+            {
+                letter: "ASL Animals",
+                image: "/static/images/public/resources/animal.jpg",
+                description: "Learn how to sign different animals in American Sign Language.",
+                videoUrl: "https://www.youtube.com/embed/3V8kP6scQpY?si=fNQrv6Ece8H6zl3x"
+            },
+            {
+                letter: "ASL Food Signs",
+                image: "/static/images/public/resources/food.jpg",
+                description: "Learn signs for different foods and drinks in American Sign Language.",
+                videoUrl: "https://www.youtube.com/embed/ghQr2hzdx8k?si=jXEbrAbCY7RqoEGq"
+            },
+            {
+                letter: "ASL Weather Signs",
+                image: "/static/images/public/resources/weather.jpg",
+                description: "Learn how to sign weather conditions in American Sign Language.",
+                videoUrl: "https://www.youtube.com/embed/xfhvTHsceTU?si=88inPxCu1IOMwKKp"
+            },
+            {
+                letter: "ASL Conversation Practice",
+                image: "/static/images/public/resources/conversation.jpg",
+                description: "Practice basic conversations in American Sign Language.",
+                videoUrl: "https://www.youtube.com/embed/lGrssQASztg?si=ZTS0DX49talQiK3b"
+            }
         ]
     ]
 };
@@ -182,18 +250,35 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = document.createElement('div');
             card.className = 'alphabet-card';
             
-            card.innerHTML = `
-                <div class="alphabet-image">
-                    <img src="${item.image}" alt="ASL ${item.letter}">
-                </div>
-                <div class="alphabet-letter">${item.letter}</div>
-                <div class="alphabet-action">Click to learn</div>
-            `;
-            
-            // Add click event to show modal
-            card.addEventListener('click', function() {
-                showLetterModal(item.letter, item.image);
-            });
+            if (tab === 'resources') {
+                card.className = 'alphabet-card resource-card';
+                
+                card.innerHTML = `
+                    <div class="alphabet-image resource-image">
+                        <img src="${item.image}" alt="${item.letter}">
+                    </div>
+                    <div class="alphabet-letter resource-title">${item.letter}</div>
+                    <div class="alphabet-action">Click to watch</div>
+                `;
+                
+                // Add click event to show modal with video
+                card.addEventListener('click', function() {
+                    showLetterModal(item.letter, item.image, item.description, item.videoUrl);
+                });
+            } else {
+                card.innerHTML = `
+                    <div class="alphabet-image">
+                        <img src="${item.image}" alt="ASL ${item.letter}">
+                    </div>
+                    <div class="alphabet-letter">${item.letter}</div>
+                    <div class="alphabet-action">Click to learn</div>
+                `;
+                
+                // Add click event to show modal
+                card.addEventListener('click', function() {
+                    showLetterModal(item.letter, item.image);
+                });
+            }
             
             alphabetGrid.appendChild(card);
         });
@@ -229,13 +314,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Function to show letter modal when a card is clicked
-    function showLetterModal(letter, image) {
+    function showLetterModal(letter, image, description, videoUrl) {
         // Create modal elements
         const modal = document.createElement('div');
         modal.className = 'alphabet-modal';
         
         const modalContent = document.createElement('div');
-        modalContent.className = 'alphabet-modal-content';
+        modalContent.className = videoUrl ? 'alphabet-modal-content resource-modal' : 'alphabet-modal-content';
         
         const closeBtn = document.createElement('span');
         closeBtn.className = 'close-modal';
@@ -246,40 +331,61 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const letterTitle = document.createElement('h2');
         letterTitle.className = 'modal-letter-title';
-        letterTitle.textContent = `ASL Sign for "${letter}"`;
+        letterTitle.textContent = letter;
         
         const letterImageContainer = document.createElement('div');
         letterImageContainer.className = 'modal-letter-image';
         
-        const letterImage = document.createElement('img');
-        letterImage.src = image;
-        letterImage.alt = `ASL ${letter}`;
-        
-        letterImageContainer.appendChild(letterImage);
+        // Check if it's a video resource
+        if (videoUrl) {
+            const videoFrame = document.createElement('iframe');
+            videoFrame.src = videoUrl;
+            videoFrame.width = "100%";
+            videoFrame.height = "400";
+            videoFrame.frameBorder = "0";
+            videoFrame.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+            videoFrame.allowFullscreen = true;
+            
+            letterImageContainer.appendChild(videoFrame);
+        } else {
+            const letterImage = document.createElement('img');
+            letterImage.src = image;
+            letterImage.alt = `ASL ${letter}`;
+            
+            letterImageContainer.appendChild(letterImage);
+        }
         
         const letterDescription = document.createElement('p');
         letterDescription.className = 'modal-letter-description';
-        letterDescription.textContent = `This is how you sign "${letter}" in American Sign Language. Practice by mimicking the hand position shown in the image or watch a video demonstration.`;
+        
+        if (description) {
+            letterDescription.textContent = description;
+        } else {
+            letterDescription.textContent = `This is how you sign "${letter}" in American Sign Language. Practice by mimicking the hand position shown in the image or watch a video demonstration.`;
+        }
         
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'modal-buttons';
         
-        const practiceBtn = document.createElement('button');
-        practiceBtn.className = 'modal-practice-btn';
-        practiceBtn.innerHTML = '<i class="fas fa-camera"></i> Practice with Camera';
-        practiceBtn.onclick = function() {
-            alert('Camera practice feature coming soon!');
-        };
-        
-        const videoBtn = document.createElement('button');
-        videoBtn.className = 'modal-video-btn';
-        videoBtn.innerHTML = '<i class="fas fa-play-circle"></i> Learn by Video';
-        videoBtn.onclick = function() {
-            alert('Video tutorial coming soon!');
-        };
-        
-        buttonContainer.appendChild(videoBtn);
-        buttonContainer.appendChild(practiceBtn);
+        // Only show practice buttons for non-resource items
+        if (!videoUrl) {
+            const practiceBtn = document.createElement('button');
+            practiceBtn.className = 'modal-practice-btn';
+            practiceBtn.innerHTML = '<i class="fas fa-camera"></i> Practice with Camera';
+            practiceBtn.onclick = function() {
+                alert('Camera practice feature coming soon!');
+            };
+            
+            const videoBtn = document.createElement('button');
+            videoBtn.className = 'modal-video-btn';
+            videoBtn.innerHTML = '<i class="fas fa-play-circle"></i> Learn by Video';
+            videoBtn.onclick = function() {
+                alert('Video tutorial coming soon!');
+            };
+            
+            buttonContainer.appendChild(videoBtn);
+            buttonContainer.appendChild(practiceBtn);
+        }
         
         modalContent.appendChild(closeBtn);
         modalContent.appendChild(letterTitle);

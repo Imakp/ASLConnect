@@ -50,6 +50,11 @@ def login():
     """Serve the login page"""
     return render_template('login.html')
 
+@app.route('/camera-practice')
+def camera_practice():
+    """Serve the camera practice page"""
+    return render_template('camera_practice.html')
+
 # Socket event handlers remain unchanged
 @socketio.on('join')
 def on_join(data):
