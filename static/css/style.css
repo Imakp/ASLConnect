@@ -1,23 +1,153 @@
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3a0ca3;
+    --accent-color: #f72585;
+    --text-color: #333;
+    --light-text: #777;
+    --background-color: #f8f9fa;
+    --dark-background: #121212;
+    --card-background: #ffffff;
+    --border-color: #e0e0e0;
+    --success-color: #2ecc71;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Video Call Container */
+.video-call-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header Styles */
+.call-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background-color: var(--card-background);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.logo i {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.room-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.room-badge {
+    display: flex;
+    align-items: center;
+    background-color: rgba(67, 97, 238, 0.1);
+    padding: 8px 15px;
+    border-radius: 20px;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.room-badge i {
+    margin-right: 8px;
+}
+
+.call-timer {
+    font-weight: 600;
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    padding: 8px 15px;
+    border-radius: 20px;
+    background-color: var(--background-color);
+}
+
+.back-button:hover {
+    color: var(--primary-color);
+    background-color: rgba(67, 97, 238, 0.1);
+}
+
+.back-button i {
+    margin-right: 8px;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Video Container */
 .video-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: 1fr 3fr;
     gap: 20px;
-    margin-bottom: 20px;
+    height: 70vh;
 }
 
 .video-wrapper {
     position: relative;
     width: 100%;
-    aspect-ratio: 16/9;
-    background: #000;
-    border-radius: 8px;
+    height: 100%;
+    background: var(--dark-background);
+    border-radius: 12px;
     overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.video-wrapper:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.local-video {
+    border: 3px solid var(--primary-color);
+}
+
+.remote-video {
+    border: 3px solid var(--secondary-color);
 }
 
 video {
@@ -34,15 +164,42 @@ video {
     bottom: 0;
     display: flex;
     flex-direction: column;
-    padding: 10px;
+    justify-content: space-between;
+    padding: 15px;
 }
 
 .participant-label {
-    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6);
     color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
+    padding: 8px 12px;
+    border-radius: 8px;
     align-self: flex-start;
+    font-weight: 500;
+    backdrop-filter: blur(4px);
+}
+
+.participant-label i {
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+
+.video-status {
+    align-self: flex-end;
+}
+
+.status-badge {
+    background: rgba(231, 76, 60, 0.8);
+    color: white;
+    padding: 8px;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    display: none;
+}
+
+.status-badge.active {
+    display: inline-block;
 }
 
 .subtitles {
@@ -52,89 +209,273 @@ video {
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.7);
     color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
+    padding: 12px 20px;
+    border-radius: 8px;
     text-align: center;
     max-width: 80%;
     opacity: 0;
     transition: opacity 0.3s;
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .subtitles.visible {
     opacity: 1;
 }
 
-.connection-status {
-    margin-top: 20px;
+.connecting-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
     text-align: center;
+    backdrop-filter: blur(4px);
+    display: none;
 }
 
-#statusMessage {
-    font-size: 14px;
-    color: #666;
-    font-style: italic;
+.connecting-animation {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: var(--primary-color);
 }
 
-/* Make sure the controls are properly styled */
-.controls {
+/* Controls Container */
+.controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--card-background);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.room-controls {
     display: flex;
     gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-    flex-wrap: wrap;
 }
 
-.controls input {
-    padding: 10px 15px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    min-width: 200px;
+.room-input {
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    min-width: 250px;
+    outline: none;
+    transition: var(--transition);
 }
 
-.controls button {
-    padding: 10px 20px;
-    border-radius: 4px;
+.room-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.call-controls {
+    display: flex;
+    gap: 15px;
+}
+
+.control-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
     border: none;
-    background-color: #4361ee;
-    color: white;
+    border-radius: 8px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: inherit;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: var(--transition);
 }
 
-.controls button:hover {
-    background-color: #3a0ca3;
+.control-btn:hover {
+    background-color: rgba(67, 97, 238, 0.1);
+    color: var(--primary-color);
 }
 
-.controls button:disabled {
-    background-color: #ccc;
+.control-btn i {
+    font-size: 1.1rem;
+}
+
+.control-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.join-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.join-btn:hover {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.leave-btn {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.leave-btn:hover {
+    background-color: #c0392b;
+    color: white;
+}
+
+.leave-btn:disabled {
+    background-color: #e0e0e0;
+    color: #999;
     cursor: not-allowed;
 }
 
-.header {
+/* Connection Status */
+.connection-status {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#statusMessage {
+    font-size: 0.9rem;
+    color: var(--light-text);
+    font-style: italic;
+}
+
+/* Messages Container */
+.messages-container {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    max-height: 300px;
+}
+
+.messages-header {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--primary-color);
+    font-weight: 600;
 }
 
-.header h1 {
+.messages-header i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.messages-content {
     flex: 1;
-    text-align: center;
-    margin: 0;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 250px;
 }
 
-.back-button {
-    display: inline-flex;
-    align-items: center;
-    color: #4361ee;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s;
+.message {
+    max-width: 70%;
+    padding: 12px 15px;
+    border-radius: 12px;
+    position: relative;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease;
 }
 
-.back-button:hover {
-    color: #3a0ca3;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.back-button i {
-    margin-right: 5px;
+.message.received {
+    align-self: flex-start;
+    background-color: var(--background-color);
+    border-bottom-left-radius: 4px;
+    color: var(--text-color);
+}
+
+.message.sent {
+    align-self: flex-end;
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message-content {
+    font-size: 0.95rem;
+}
+
+.message-confidence {
+    font-size: 0.7rem;
+    margin-top: 5px;
+    opacity: 0.8;
+}
+
+@media (max-width: 992px) {
+    .video-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 3fr;
+        height: auto;
+    }
+    
+    .local-video {
+        height: 200px;
+    }
+    
+    .controls-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .room-controls, .call-controls {
+        width: 100%;
+    }
+    
+    .messages-container {
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 576px) {
+    .video-call-container {
+        padding: 10px;
+    }
+    
+    .call-header {
+        padding: 10px 15px;
+    }
+    
+    .logo span, .back-button span {
+        display: none;
+    }
+    
+    .control-btn span {
+        display: none;
+    }
+    
+    .control-btn {
+        padding: 12px;
+    }
+    
+    .control-btn i {
+        margin: 0;
+    }
+    
+    .message {
+        max-width: 85%;
+    }
 }
