@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentScore = document.getElementById('currentScore');
     const feedbackMessage = document.getElementById('feedbackMessage');
     const predictionFeedback = document.getElementById('predictionFeedback');
+    // Add new DOM element for letter score display
+    const letterScoreDisplay = document.getElementById('letterScoreDisplay');
+    const letterScore = document.getElementById('letterScore');
     
     // Quiz state
     let stream = null;
@@ -99,7 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
         quizActive = true;
         secondsRemaining = 120;
         score = 10;
-        currentScore.textContent = score;
+        // Remove or comment out this line
+        // currentScore.textContent = score;
         currentPrediction = '';
         currentConfidence = 0;
         
@@ -183,6 +187,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Start the timer
     function startTimer() {
+        // Clear any existing timer
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        
         updateTimerDisplay();
         
         timerInterval = setInterval(() => {
@@ -191,7 +200,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update score based on time
             if (secondsRemaining % 12 === 0 && secondsRemaining > 0) {
                 score = Math.max(1, Math.floor(secondsRemaining / 12) + 1);
-                currentScore.textContent = score;
+                // Remove or comment out this line
+                // currentScore.textContent = score;
             }
             
             updateTimerDisplay();
@@ -305,6 +315,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Stop recognition temporarily
         recognitionActive = false;
         
+        // Stop the timer
+        clearInterval(timerInterval);
+        
         // Update UI
         feedbackMessage.textContent = `Great job! You correctly signed "${aslLetters[currentLetterIndex]}"`;
         feedbackMessage.className = 'feedback-message feedback-success';
@@ -315,13 +328,21 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add points to score based on confidence
         const bonusPoints = Math.round(currentConfidence * 2);
         score += bonusPoints;
-        currentScore.textContent = score;
+        // Remove or comment out this line
+        // currentScore.textContent = score;
+        
+        // Display the letter score
+        letterScore.textContent = Math.max(1, Math.floor(secondsRemaining / 12) + 1);
+        letterScoreDisplay.style.display = 'block';
     }
     
     // Move to next letter
     function nextLetter() {
         // Hide next button
         nextQuizBtn.style.display = 'none';
+        
+        // Hide letter score display
+        letterScoreDisplay.style.display = 'none';
         
         // Select a new letter
         selectRandomLetter();
@@ -333,6 +354,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Resume recognition
         recognitionActive = true;
+        
+        // Restart the timer
+        startTimer();
     }
     
     // End the quiz
@@ -342,6 +366,9 @@ document.addEventListener('DOMContentLoaded', function() {
         clearInterval(frameInterval);
         recognitionActive = false;
         quizActive = false;
+        
+        // Hide letter score display
+        letterScoreDisplay.style.display = 'none';
         
         // Update UI
         if (completed) {

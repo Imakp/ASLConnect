@@ -31,9 +31,19 @@
                     <div class="letter-box" id="letterDisplay">
                         <span id="quizLetter">?</span>
                     </div>
+                    <div class="quiz-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Time Left: <strong id="timeLeft">2:00</strong></span>
+                        </div>
+                    </div>
                     <div class="attempts-info">
-                        <p>You have 2 minutes to sign the letter correctly.</p>
                         <p>Your score decreases by 1 point every 12 seconds.</p>
+                    </div>
+                    <!-- Add this new div for displaying the score -->
+                    <div class="letter-score" id="letterScoreDisplay" style="display: none;">
+                        <h3>Your Score for This Letter:</h3>
+                        <div class="score-value" id="letterScore">10</div>
                     </div>
                 </div>
             </div>
@@ -58,18 +68,7 @@
                 </div>
                 
                 <!-- Bottom Section - Controls and Stats -->
-                <div class="quiz-right-bottom">
-                    <div class="quiz-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-clock"></i>
-                            <span>Time Left: <strong id="timeLeft">2:00</strong></span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-star"></i>
-                            <span>Score: <strong id="currentScore">10</strong></span>
-                        </div>
-                    </div>
-                    
+                <div class="quiz-right-bottom">                    
                     <div class="quiz-controls">
                         <button id="startQuizBtn" class="quiz-btn start-btn">
                             <i class="fas fa-play"></i>
