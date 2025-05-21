@@ -55,6 +55,11 @@ def camera_practice():
     """Serve the camera practice page"""
     return render_template('camera_practice.html')
 
+@app.route('/quiz')
+def quiz():
+    """Serve the quiz page"""
+    return render_template('quiz.html')
+
 # Socket event handlers remain unchanged
 @socketio.on('join')
 def on_join(data):
@@ -94,18 +99,37 @@ def handle_ice_candidate(data):
     room = data['room']
     emit('ice_candidate', data, room=room, skip_sid=request.sid)
 
+# Update the handle_frame function to support quiz mode
 @socketio.on('frame')
 def handle_frame(data):
     """Process video frame for ASL recognition"""
     frame_data = data['frame']
     room = data['room']
     user_id = request.sid
+    is_local = data.get('isLocal', False)
+    target_letter = data.get('targetLetter', None)  # Get target letter for quiz mode
     
     # Process frame for ASL recognition
     prediction, confidence = subtitle_generator.process_frame(frame_data)
     
-    # Use the same confidence threshold as in inference.py (0.7 instead of 0.85)
-    if prediction and confidence > 0.7:
+    # For quiz mode, we need stricter validation
+    if target_letter and is_local:
+        # Use a higher confidence threshold for quiz (0.9 instead of 0.7)
+        quiz_confidence_threshold = 0.9
+        
+        # Emit the result specifically for quiz validation
+        emit('asl-result', {
+            'text': prediction,
+            'confidence': confidence,
+            'isLocal': is_local,
+            'targetLetter': target_letter
+        }, room=request.sid)  # Send only to the sender
+        
+        # Log quiz predictions for debugging
+        print(f"Quiz ASL Prediction: {prediction} (Confidence: {confidence:.2f}, Target: {target_letter})")
+    
+    # Standard video call mode
+    elif prediction and confidence > 0.7:
         # Emit subtitle to all users in room including sender (for debugging)
         emit('subtitle', {
             'text': prediction,

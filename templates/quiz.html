@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASL Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="quiz-container">
+        <!-- Header with back button -->
+        <header class="quiz-header">
+            <a href="/dashboard" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </a>
+            <h1>ASL Quiz Challenge</h1>
+            <div class="quiz-user">
+                <img src="{{ url_for('static', filename='images/profile.png') }}" alt="User Avatar">
+            </div>
+        </header>
+
+        <div class="quiz-content">
+            <!-- Left Column - Letter Display -->
+            <div class="quiz-left-column">
+                <div class="letter-display">
+                    <h2>Sign This Letter:</h2>
+                    <div class="letter-box" id="letterDisplay">
+                        <span id="quizLetter">?</span>
+                    </div>
+                    <div class="letter-image">
+                        <img id="referenceImage" src="{{ url_for('static', filename='images/public/question-mark.png') }}" alt="Reference Sign">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Camera and Controls -->
+            <div class="quiz-right-column">
+                <!-- Top Section - Camera Feed and Feedback -->
+                <div class="quiz-right-top">
+                    <div class="camera-container">
+                        <video id="quizCamera" autoplay playsinline></video>
+                        <div class="camera-overlay" id="cameraOverlay">
+                            <i class="fas fa-camera"></i>
+                            <p>Camera will activate when quiz starts</p>
+                        </div>
+                        <div class="prediction-feedback" id="predictionFeedback"></div>
+                    </div>
+                    <div class="feedback-container">
+                        <div class="feedback-message" id="feedbackMessage">
+                            Ready to start the quiz?
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bottom Section - Controls and Stats -->
+                <div class="quiz-right-bottom">
+                    <div class="quiz-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Time Left: <strong id="timeLeft">2:00</strong></span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-star"></i>
+                            <span>Score: <strong id="currentScore">10</strong></span>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-controls">
+                        <button id="startQuizBtn" class="quiz-btn start-btn">
+                            <i class="fas fa-play"></i>
+                            <span>Start Quiz</span>
+                        </button>
+                        <button id="nextQuizBtn" class="quiz-btn next-btn" style="display: none;">
+                            <i class="fas fa-forward"></i>
+                            <span>Next Letter</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+</body>
+</html>
