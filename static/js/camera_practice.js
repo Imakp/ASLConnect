@@ -57,11 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isLocal) {
                 console.log(`Received prediction: ${text} with confidence ${confidence}`);
                 
-                // Update accuracy meter based on confidence
-                updateAccuracy(Math.round(confidence * 100));
-                
                 // Check if the prediction matches the current letter
                 if (text === currentLetter) {
+                    // Only update accuracy meter if the prediction matches the current letter
+                    updateAccuracy(Math.round(confidence * 100));
+                    
                     feedbackMessage.textContent = `Great! Your sign for "${currentLetter}" was recognized with ${Math.round(confidence * 100)}% confidence.`;
                     
                     // Add success class if confidence is high enough
@@ -71,9 +71,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         feedbackMessage.className = 'feedback-message feedback-warning';
                     }
                 } else if (text) {
+                    // If prediction doesn't match, set accuracy to 0
+                    updateAccuracy(0);
+                    
                     feedbackMessage.textContent = `Your sign was recognized as "${text}" instead of "${currentLetter}". Try adjusting your hand position.`;
                     feedbackMessage.className = 'feedback-message feedback-error';
                 } else {
+                    // No sign detected
+                    updateAccuracy(0);
+                    
                     feedbackMessage.textContent = `No sign detected. Make sure your hand is visible in the frame.`;
                     feedbackMessage.className = 'feedback-message';
                 }
