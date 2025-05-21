@@ -23,8 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let confidenceThreshold = 0.90; // Increased threshold to 90% for stricter validation
     let socket = null;
     let frameInterval = null;
-    let attemptCount = 0;
-    let maxAttempts = 3;
     
     // ASL letters to quiz
     const aslLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 
@@ -71,14 +69,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Correct letter but confidence too low
                     feedbackMessage.textContent = `Almost there! Keep signing "${targetLetter}" clearly. (${Math.round(confidence * 100)}% confident)`;
                     feedbackMessage.className = 'feedback-message feedback-warning';
-                    attemptCount++;
-                    checkAttempts();
                 } else if (text) {
                     // Incorrect prediction
                     feedbackMessage.textContent = `That looks like "${text}". Try signing "${targetLetter}" instead.`;
                     feedbackMessage.className = 'feedback-message feedback-error';
-                    attemptCount++;
-                    checkAttempts();
                 } else {
                     // No valid prediction
                     feedbackMessage.textContent = 'No valid sign detected. Please try again.';
@@ -99,16 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Check if max attempts reached
-    function checkAttempts() {
-        if (attemptCount >= maxAttempts) {
-            feedbackMessage.textContent = `Maximum attempts reached. The correct sign was "${aslLetters[currentLetterIndex]}".`;
-            feedbackMessage.className = 'feedback-message feedback-error';
-            nextQuizBtn.style.display = 'block';
-            recognitionActive = false;
-        }
-    }
-    
     // Start the quiz
     async function startQuiz() {
         // Reset quiz state
@@ -118,7 +102,6 @@ document.addEventListener('DOMContentLoaded', function() {
         currentScore.textContent = score;
         currentPrediction = '';
         currentConfidence = 0;
-        attemptCount = 0;
         
         // Update UI
         startQuizBtn.style.display = 'none';
@@ -195,8 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update UI
         quizLetter.textContent = letter;
         
-        // Reset attempt counter
-        attemptCount = 0;
+        // Removed attempt counter reset
     }
     
     // Start the timer
@@ -216,6 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Check if time is up
             if (secondsRemaining <= 0) {
+                score = 0; // Set score to 0 if time runs out
+                currentScore.textContent = score;
                 endQuiz(false);
             }
         }, 1000);
