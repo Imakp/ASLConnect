@@ -31,8 +31,9 @@
                     <div class="letter-box" id="letterDisplay">
                         <span id="quizLetter">?</span>
                     </div>
-                    <div class="letter-image">
-                        <img id="referenceImage" src="{{ url_for('static', filename='images/public/question-mark.png') }}" alt="Reference Sign">
+                    <div class="attempts-info">
+                        <p>You have 3 attempts for each letter.</p>
+                        <p>Try to sign the letter correctly!</p>
                     </div>
                 </div>
             </div>
@@ -84,6 +85,8 @@
         </div>
     </div>
 
+    <!-- Add Socket.IO script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
 </body>
 </html>
