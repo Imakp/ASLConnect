@@ -107,17 +107,14 @@ def handle_frame(data):
     room = data['room']
     user_id = request.sid
     is_local = data.get('isLocal', False)
-    target_letter = data.get('targetLetter', None)  # Get target letter for quiz mode
+    target_letter = data.get('targetLetter', None)  # Get target letter for practice/quiz mode
     
     # Process frame for ASL recognition
     prediction, confidence = subtitle_generator.process_frame(frame_data)
     
-    # For quiz mode, we need stricter validation
-    if target_letter and is_local:
-        # Use a higher confidence threshold for quiz (0.9 instead of 0.7)
-        quiz_confidence_threshold = 0.9
-        
-        # Emit the result specifically for quiz validation
+    # For practice or quiz mode, we need to send back the result
+    if is_local:
+        # Emit the result specifically for practice/quiz validation
         emit('asl-result', {
             'text': prediction,
             'confidence': confidence,
@@ -125,8 +122,8 @@ def handle_frame(data):
             'targetLetter': target_letter
         }, room=request.sid)  # Send only to the sender
         
-        # Log quiz predictions for debugging
-        print(f"Quiz ASL Prediction: {prediction} (Confidence: {confidence:.2f}, Target: {target_letter})")
+        # Log predictions for debugging
+        print(f"ASL Prediction: {prediction} (Confidence: {confidence:.2f}, Target: {target_letter})")
     
     # Standard video call mode
     elif prediction and confidence > 0.7:

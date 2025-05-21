@@ -14,9 +14,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let stream = null;
     let currentLetter = 'A';
+    let socket = null;
+    let frameInterval = null;
+    let recognitionActive = false;
     
     // Initialize
     updateReferenceImage('A');
+    initializeSocket();
     
     // Fix letter data attributes in HTML
     const letterItems = document.querySelectorAll('#letters-content .practice-item');
@@ -29,6 +33,53 @@ document.addEventListener('DOMContentLoaded', function() {
             item.querySelector('img').alt = `ASL ${letters[index]}`;
         }
     });
+    
+    // Initialize Socket.IO connection
+    function initializeSocket() {
+        // Check if socket.io is loaded
+        if (typeof io === 'undefined') {
+            console.error('Socket.IO is not loaded. Make sure to include the socket.io client script.');
+            feedbackMessage.textContent = 'Error: Socket.IO not loaded. Please refresh the page.';
+            return;
+        }
+        
+        // Initialize socket connection
+        socket = io();
+        console.log('Socket connection initialized');
+        
+        // Listen for ASL recognition results from the server
+        socket.on('asl-result', (data) => {
+            if (!recognitionActive) return;
+            
+            const { text, confidence, isLocal } = data;
+            
+            // Only process if this is a local prediction (from this user)
+            if (isLocal) {
+                console.log(`Received prediction: ${text} with confidence ${confidence}`);
+                
+                // Update accuracy meter based on confidence
+                updateAccuracy(Math.round(confidence * 100));
+                
+                // Check if the prediction matches the current letter
+                if (text === currentLetter) {
+                    feedbackMessage.textContent = `Great! Your sign for "${currentLetter}" was recognized with ${Math.round(confidence * 100)}% confidence.`;
+                    
+                    // Add success class if confidence is high enough
+                    if (confidence > 0.8) {
+                        feedbackMessage.className = 'feedback-message feedback-success';
+                    } else {
+                        feedbackMessage.className = 'feedback-message feedback-warning';
+                    }
+                } else if (text) {
+                    feedbackMessage.textContent = `Your sign was recognized as "${text}" instead of "${currentLetter}". Try adjusting your hand position.`;
+                    feedbackMessage.className = 'feedback-message feedback-error';
+                } else {
+                    feedbackMessage.textContent = `No sign detected. Make sure your hand is visible in the frame.`;
+                    feedbackMessage.className = 'feedback-message';
+                }
+            }
+        });
+    }
     
     // Tab switching
     practiceTabs.forEach(tab => {
@@ -84,6 +135,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update feedback message
         feedbackMessage.textContent = `Practice signing the ${isNumber ? 'number' : 'letter'} "${letter}". Position your hand in the center of the frame.`;
+        feedbackMessage.className = 'feedback-message';
+        
+        // Reset accuracy meter
+        updateAccuracy(0);
     }
     
     // Camera functionality
@@ -91,12 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             if (stream) {
                 // Stop camera if already running
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-                startCameraBtn.innerHTML = '<i class="fas fa-video"></i> Start Camera';
-                captureBtn.disabled = true;
-                cameraFeed.srcObject = null;
-                feedbackMessage.textContent = `Select a letter or number and start the camera to begin practice.`;
+                stopCamera();
                 return;
             }
             
@@ -113,31 +163,89 @@ document.addEventListener('DOMContentLoaded', function() {
             startCameraBtn.innerHTML = '<i class="fas fa-video-slash"></i> Stop Camera';
             captureBtn.disabled = false;
             
-            feedbackMessage.textContent = `Camera started. Position your hand to sign "${currentLetter}" and click Capture.`;
+            feedbackMessage.textContent = `Camera started. Position your hand to sign "${currentLetter}".`;
+            
+            // Start continuous frame capture
+            recognitionActive = true;
+            startFrameCapture();
             
         } catch (err) {
             console.error('Error accessing camera:', err);
             feedbackMessage.textContent = `Error accessing camera: ${err.message}`;
+            feedbackMessage.className = 'feedback-message feedback-error';
         }
     });
     
-    // Capture image
-    captureBtn.addEventListener('click', function() {
-        if (!stream) return;
-        
-        // Simulate recognition with random accuracy
-        const accuracy = Math.floor(Math.random() * 101);
-        updateAccuracy(accuracy);
-        
-        if (accuracy > 80) {
-            feedbackMessage.textContent = `Great job! Your sign for "${currentLetter}" was recognized with high accuracy.`;
-        } else if (accuracy > 50) {
-            feedbackMessage.textContent = `Good attempt! Your sign for "${currentLetter}" was recognized, but could use some improvement.`;
-        } else {
-            feedbackMessage.textContent = `Keep practicing! Your sign for "${currentLetter}" was not clearly recognized. Try adjusting your hand position.`;
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            cameraFeed.srcObject = null;
+            startCameraBtn.innerHTML = '<i class="fas fa-video"></i> Start Camera';
+            captureBtn.disabled = true;
+            feedbackMessage.textContent = `Select a letter or number and start the camera to begin practice.`;
+            feedbackMessage.className = 'feedback-message';
+            
+            // Stop frame capture
+            recognitionActive = false;
+            if (frameInterval) {
+                clearInterval(frameInterval);
+                frameInterval = null;
+            }
         }
-    });
+    }
     
+    // Start continuous frame capture
+    function startFrameCapture() {
+        // Clear any existing interval
+        if (frameInterval) {
+            clearInterval(frameInterval);
+        }
+        
+        console.log('Starting continuous frame capture');
+        
+        // Capture frames at regular intervals
+        frameInterval = setInterval(() => {
+            if (!recognitionActive) return;
+            
+            // Capture and send frame for processing
+            captureAndSendFrame();
+        }, 500); // 2 frames per second to avoid overloading
+    }
+    
+    // Capture and send frame for ASL recognition
+    function captureAndSendFrame() {
+        if (!cameraFeed || !cameraFeed.srcObject || !socket) return;
+        
+        try {
+            // Create a canvas to capture the frame
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions to match video
+            canvas.width = cameraFeed.videoWidth;
+            canvas.height = cameraFeed.videoHeight;
+            
+            // Draw the current video frame to the canvas
+            ctx.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+            
+            // Convert the canvas to a base64-encoded image
+            const frameData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Send the frame to the server with the target letter
+            socket.emit('frame', {
+                room: 'practice-room-' + socket.id, // Create a unique room for practice
+                frame: frameData,
+                isLocal: true,
+                targetLetter: currentLetter
+            });
+            
+        } catch (error) {
+            console.error('Error capturing or sending frame:', error);
+        }
+    }
+    
+    // Update accuracy meter
     function updateAccuracy(value) {
         accuracyFill.style.width = `${value}%`;
         accuracyValue.textContent = `${value}%`;
@@ -154,4 +262,10 @@ document.addEventListener('DOMContentLoaded', function() {
             accuracyValue.style.color = 'var(--danger)';
         }
     }
+    
+    // Remove the capture button click event since we're doing continuous capture
+    captureBtn.addEventListener('click', function() {
+        // We'll keep this for manual capture if needed
+        captureAndSendFrame();
+    });
 });
