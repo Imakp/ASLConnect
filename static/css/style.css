@@ -150,10 +150,21 @@ body {
     border: 3px solid var(--secondary-color);
 }
 
+/* New video frame container to ensure proper sizing */
+.video-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
 video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain; /* Changed from cover to contain */
+    background-color: var(--dark-background);
 }
 
 .video-overlay {
@@ -166,6 +177,8 @@ video {
     flex-direction: column;
     justify-content: space-between;
     padding: 15px;
+    pointer-events: none; /* Allow clicks to pass through to video */
+    z-index: 10;
 }
 
 .participant-label {
@@ -178,6 +191,7 @@ video {
     align-self: flex-start;
     font-weight: 500;
     backdrop-filter: blur(4px);
+    pointer-events: auto; /* Make this element clickable */
 }
 
 .participant-label i {
@@ -187,6 +201,7 @@ video {
 
 .video-status {
     align-self: flex-end;
+    pointer-events: auto; /* Make this element clickable */
 }
 
 .status-badge {
@@ -219,6 +234,7 @@ video {
     display: flex;
     align-items: center;
     gap: 10px;
+    pointer-events: auto; /* Make this element clickable */
 }
 
 .subtitles.visible {
@@ -240,6 +256,7 @@ video {
     text-align: center;
     backdrop-filter: blur(4px);
     display: none;
+    z-index: 20; /* Ensure this is above the video-overlay */
 }
 
 .connecting-animation {
@@ -423,6 +440,36 @@ video {
     font-size: 0.7rem;
     margin-top: 5px;
     opacity: 0.8;
+}
+
+/* Add video aspect ratio controls */
+.aspect-ratio-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 5px;
+    z-index: 15;
+    pointer-events: auto;
+}
+
+.aspect-ratio-btn {
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.aspect-ratio-btn:hover {
+    background: rgba(67, 97, 238, 0.8);
+}
+
+.aspect-ratio-btn.active {
+    background: var(--primary-color);
 }
 
 @media (max-width: 992px) {

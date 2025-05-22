@@ -45,10 +45,10 @@ def get_rooms():
         'count': len(rooms)
     }
 
-@app.route('/login')
-def login():
-    """Serve the login page"""
-    return render_template('login.html')
+# @app.route('/video-call')
+# def login():
+#     """Serve the login page"""
+#     return render_template('index.html')
 
 @app.route('/camera-practice')
 def camera_practice():

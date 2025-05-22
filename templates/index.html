@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,7 +32,9 @@
         <div class="main-content">
             <div class="video-container">
                 <div class="video-wrapper local-video">
-                    <video id="localVideo" autoplay playsinline muted></video>
+                    <div class="video-frame">
+                        <video id="localVideo" autoplay playsinline muted></video>
+                    </div>
                     <div class="video-overlay">
                         <div class="participant-label">
                             <i class="fas fa-user"></i>
@@ -45,7 +48,9 @@
                     </div>
                 </div>
                 <div class="video-wrapper remote-video">
-                    <video id="remoteVideo" autoplay playsinline></video>
+                    <div class="video-frame">
+                        <video id="remoteVideo" autoplay playsinline></video>
+                    </div>
                     <div class="video-overlay">
                         <div class="participant-label">
                             <i class="fas fa-user"></i>
@@ -108,3 +113,5 @@
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
+
+
