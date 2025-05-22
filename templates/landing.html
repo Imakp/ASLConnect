@@ -19,29 +19,26 @@
   </head>
   <body>
     <header>
-      <nav>
-        <div class="logo">
-          <img
-            src="{{ url_for('static', filename='images/logo.png') }}"
-            alt="ASL Logo"
-          />
-          <h1>Learn2Sign</h1>
-        </div>
-        <ul class="nav-links">
-          <li><a href="#features">Features</a></li>
-          <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#benefits">Benefits</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-        <div class="cta-button">
-          <a href="/dashboard" class="btn primary-btn">Login </a>
-        </div>
-        <div class="hamburger">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </nav>
+        <nav>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ASL Logo">
+                <h1>ASL Connect</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#benefits">Benefits</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="cta-button">
+                <a href="/dashboard" class="btn primary-btn">Dashboard </a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
     </header>
 
     <section class="hero">
@@ -290,42 +287,43 @@
     </section>
 
     <footer>
-      <div class="footer-content">
-        <div class="footer-logo">
-          <img
-            src="{{ url_for('static', filename='images/logo.png') }}"
-            alt="ASL Logo"
-          />
-          <h3>Learn2Sign</h3>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ASL Logo">
+                <h3>ASL Connect</h3>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="#demo">Demo</a></li>
+                        <li><a href="#benefits">Benefits</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Team</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">Support</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div class="footer-links">
-          <div class="footer-column">
-            <h4>Product</h4>
-            <ul>
-              <li><a href="#features">Features</a></li>
-              <li><a href="#how-it-works">How It Works</a></li>
-              <li><a href="#demo">Demo</a></li>
-              <li><a href="#benefits">Benefits</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4>Company</h4>
-            <ul>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Team</a></li>
-              <li><a href="#">Careers</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4>Resources</h4>
-            <ul>
-              <li><a href="#">Blog</a></li>
-              <li><a href="#">Documentation</a></li>
-              <li><a href="#">Support</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-            </ul>
-          </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ASL Connect. All rights reserved.</p>
         </div>
       </div>
       <div class="footer-bottom">

@@ -5,11 +5,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const quizCamera = document.getElementById('quizCamera');
     const cameraOverlay = document.getElementById('cameraOverlay');
     const quizLetter = document.getElementById('quizLetter');
-    const referenceImage = document.getElementById('referenceImage');
     const timeLeft = document.getElementById('timeLeft');
     const currentScore = document.getElementById('currentScore');
     const feedbackMessage = document.getElementById('feedbackMessage');
     const predictionFeedback = document.getElementById('predictionFeedback');
+    // Add new DOM element for letter score display
+    const letterScoreDisplay = document.getElementById('letterScoreDisplay');
+    const letterScore = document.getElementById('letterScore');
     
     // Quiz state
     let stream = null;
@@ -19,8 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentLetterIndex = -1;
     let score = 10;
     let recognitionActive = false;
-    let handLandmarker = null;
-    let lastPredictionTime = 0;
     let currentPrediction = '';
     let currentConfidence = 0;
     let confidenceThreshold = 0.90; // Increased threshold to 90% for stricter validation
@@ -33,10 +33,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize Socket.IO connection for real model predictions
     function initializeSocket() {
+        // Check if socket.io is loaded
+        if (typeof io === 'undefined') {
+            console.error('Socket.IO is not loaded. Make sure to include the socket.io client script.');
+            feedbackMessage.textContent = 'Error: Socket.IO not loaded. Please refresh the page.';
+            feedbackMessage.className = 'feedback-message feedback-error';
+            return;
+        }
+        
+        // Initialize socket connection
         socket = io();
+        console.log('Socket connection initialized');
         
         // Listen for ASL recognition results from the server
         socket.on('asl-result', (data) => {
+            console.log('Received ASL result:', data);
             if (!quizActive) return;
             
             const { text, confidence, isLocal } = data;
@@ -72,6 +83,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+        
+        // Handle connection events
+        socket.on('connect', () => {
+            console.log('Connected to server with ID:', socket.id);
+        });
+        
+        socket.on('connect_error', (error) => {
+            console.error('Socket connection error:', error);
+            feedbackMessage.textContent = 'Connection error. Please refresh the page.';
+            feedbackMessage.className = 'feedback-message feedback-error';
+        });
     }
     
     // Start the quiz
@@ -80,7 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
         quizActive = true;
         secondsRemaining = 120;
         score = 10;
-        currentScore.textContent = score;
+        // Remove or comment out this line
+        // currentScore.textContent = score;
         currentPrediction = '';
         currentConfidence = 0;
         
@@ -91,7 +114,10 @@ document.addEventListener('DOMContentLoaded', function() {
         feedbackMessage.className = 'feedback-message';
         
         // Start camera
-        await startCamera();
+        const cameraStarted = await startCamera();
+        if (!cameraStarted) {
+            return; // Exit if camera failed to start
+        }
         
         // Select random letter
         selectRandomLetter();
@@ -156,13 +182,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update UI
         quizLetter.textContent = letter;
         
-        // Update reference image
-        referenceImage.src = `/static/images/public/alphabets/${letter}_test.jpg`;
-        referenceImage.alt = `ASL ${letter}`;
+        // Removed attempt counter reset
     }
     
     // Start the timer
     function startTimer() {
+        // Clear any existing timer
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+        
         updateTimerDisplay();
         
         timerInterval = setInterval(() => {
@@ -171,13 +200,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update score based on time
             if (secondsRemaining % 12 === 0 && secondsRemaining > 0) {
                 score = Math.max(1, Math.floor(secondsRemaining / 12) + 1);
-                currentScore.textContent = score;
+                // Remove or comment out this line
+                // currentScore.textContent = score;
             }
             
             updateTimerDisplay();
             
             // Check if time is up
             if (secondsRemaining <= 0) {
+                score = 0; // Set score to 0 if time runs out
+                currentScore.textContent = score;
                 endQuiz(false);
             }
         }, 1000);
@@ -206,6 +238,8 @@ document.addEventListener('DOMContentLoaded', function() {
             clearInterval(frameInterval);
         }
         
+        console.log('Starting frame capture');
+        
         // Capture frames at regular intervals
         frameInterval = setInterval(() => {
             if (!quizActive || !recognitionActive) return;
@@ -217,104 +251,136 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Capture and send frame for ASL recognition
     function captureAndSendFrame() {
-        if (!quizCamera || !quizCamera.srcObject) return;
+        if (!quizCamera || !quizCamera.srcObject || !socket) return;
         
-        // Create a canvas to capture the frame
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = quizCamera.videoWidth;
-        canvas.height = quizCamera.videoHeight;
-        
-        // Draw the current video frame to the canvas
-        ctx.drawImage(quizCamera, 0, 0, canvas.width, canvas.height);
-        
-        // Convert the canvas to a base64-encoded image
-        const frameData = canvas.toDataURL('image/jpeg', 0.8);
-        
-        // Send the frame to the server for ASL recognition
-        if (socket) {
+        try {
+            // Create a canvas to capture the frame
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas dimensions to match video
+            canvas.width = quizCamera.videoWidth;
+            canvas.height = quizCamera.videoHeight;
+            
+            // Draw the current video frame to the canvas
+            ctx.drawImage(quizCamera, 0, 0, canvas.width, canvas.height);
+            
+            // Convert the canvas to a base64-encoded image
+            const frameData = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Get the current target letter
+            const targetLetter = aslLetters[currentLetterIndex];
+            
+            // Send the frame to the server with the target letter
             socket.emit('frame', {
-                room: 'quiz-room', // Use a fixed room for quiz
+                room: 'quiz-room-' + socket.id, // Create a unique room for quiz
                 frame: frameData,
                 isLocal: true,
-                targetLetter: aslLetters[currentLetterIndex] // Send the target letter for validation
+                targetLetter: targetLetter
             });
+            
+            console.log(`Frame sent for letter ${targetLetter}`);
+        } catch (error) {
+            console.error('Error capturing or sending frame:', error);
         }
     }
     
-    // Update the prediction feedback display
+    // Update prediction feedback display
     function updatePredictionFeedback(prediction, confidence, targetLetter) {
-        if (predictionFeedback) {
-            if (prediction) {
-                const confidencePercent = Math.round(confidence * 100);
-                const isCorrect = prediction === targetLetter;
-                const confidenceClass = confidence >= confidenceThreshold ? 'high-confidence' : 'low-confidence';
-                const correctClass = isCorrect ? 'correct-prediction' : 'incorrect-prediction';
-                
-                predictionFeedback.innerHTML = `
-                    <div class="prediction ${correctClass} ${confidenceClass}">
-                        <span class="prediction-letter">${prediction}</span>
-                        <span class="prediction-confidence">${confidencePercent}%</span>
-                    </div>
-                `;
-                predictionFeedback.style.display = 'block';
-            } else {
-                predictionFeedback.innerHTML = '<div class="prediction">No hand detected</div>';
-                predictionFeedback.style.display = 'block';
-            }
+        if (!prediction) {
+            predictionFeedback.textContent = '';
+            return;
         }
+        
+        // Format the confidence as a percentage
+        const confidencePercent = Math.round(confidence * 100);
+        
+        // Create feedback text
+        let feedbackText = `Detected: ${prediction} (${confidencePercent}%)`;
+        
+        // Add visual indication if it matches the target
+        if (prediction === targetLetter) {
+            predictionFeedback.className = 'prediction-feedback correct';
+            feedbackText += ' ✓';
+        } else {
+            predictionFeedback.className = 'prediction-feedback incorrect';
+            feedbackText += ' ✗';
+        }
+        
+        predictionFeedback.textContent = feedbackText;
     }
     
     // Handle correct prediction
     function handleCorrectPrediction() {
-        // Only proceed if quiz is still active
-        if (!quizActive) return;
-        
-        // Stop recognition
+        // Stop recognition temporarily
         recognitionActive = false;
-        if (frameInterval) {
-            clearInterval(frameInterval);
-            frameInterval = null;
-        }
+        
+        // Stop the timer
+        clearInterval(timerInterval);
         
         // Update UI
-        feedbackMessage.textContent = `Correct! You signed "${aslLetters[currentLetterIndex]}" correctly.`;
+        feedbackMessage.textContent = `Great job! You correctly signed "${aslLetters[currentLetterIndex]}"`;
         feedbackMessage.className = 'feedback-message feedback-success';
         
         // Show next button
-        nextQuizBtn.style.display = 'flex';
+        nextQuizBtn.style.display = 'block';
         
-        // Update score based on remaining time
-        currentScore.textContent = score;
+        // Add points to score based on confidence
+        const bonusPoints = Math.round(currentConfidence * 2);
+        score += bonusPoints;
+        // Remove or comment out this line
+        // currentScore.textContent = score;
+        
+        // Display the letter score
+        letterScore.textContent = Math.max(1, Math.floor(secondsRemaining / 12) + 1);
+        letterScoreDisplay.style.display = 'block';
+    }
+    
+    // Move to next letter
+    function nextLetter() {
+        // Hide next button
+        nextQuizBtn.style.display = 'none';
+        
+        // Hide letter score display
+        letterScoreDisplay.style.display = 'none';
+        
+        // Select a new letter
+        selectRandomLetter();
+        
+        // Reset feedback
+        feedbackMessage.textContent = `Sign the letter "${aslLetters[currentLetterIndex]}"`;
+        feedbackMessage.className = 'feedback-message';
+        predictionFeedback.textContent = '';
+        
+        // Resume recognition
+        recognitionActive = true;
+        
+        // Restart the timer
+        startTimer();
     }
     
     // End the quiz
-    function endQuiz(completed) {
-        quizActive = false;
+    function endQuiz(completed = true) {
+        // Stop timer and recognition
         clearInterval(timerInterval);
+        clearInterval(frameInterval);
+        recognitionActive = false;
+        quizActive = false;
         
-        if (recognitionActive) {
-            recognitionActive = false;
-            if (frameInterval) {
-                clearInterval(frameInterval);
-                frameInterval = null;
-            }
-        }
+        // Hide letter score display
+        letterScoreDisplay.style.display = 'none';
         
         // Update UI
         if (completed) {
-            feedbackMessage.textContent = 'Quiz completed! Well done.';
-            feedbackMessage.className = 'feedback-message feedback-success';
+            feedbackMessage.textContent = `Quiz completed! Your final score is ${score}.`;
         } else {
-            feedbackMessage.textContent = 'Time\'s up! Quiz ended.';
-            feedbackMessage.className = 'feedback-message feedback-warning';
+            feedbackMessage.textContent = `Time's up! Your final score is ${score}.`;
         }
+        feedbackMessage.className = 'feedback-message feedback-success';
         
-        // Show start button to restart
-        startQuizBtn.style.display = 'flex';
-        startQuizBtn.querySelector('span').textContent = 'Restart Quiz';
-        
-        // Hide next button
+        // Show start button to try again
+        startQuizBtn.style.display = 'block';
+        startQuizBtn.textContent = 'Try Again';
         nextQuizBtn.style.display = 'none';
         
         // Stop camera
@@ -323,18 +389,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Event listeners
     startQuizBtn.addEventListener('click', startQuiz);
+    nextQuizBtn.addEventListener('click', nextLetter);
     
-    nextQuizBtn.addEventListener('click', function() {
-        // Move to next letter
-        selectRandomLetter();
-        
-        // Reset UI
-        nextQuizBtn.style.display = 'none';
-        feedbackMessage.textContent = `Sign the letter "${aslLetters[currentLetterIndex]}".`;
-        feedbackMessage.className = 'feedback-message';
-        
-        // Restart recognition
-        recognitionActive = true;
-        startFrameCapture();
-    });
+    // Initialize socket connection when page loads
+    initializeSocket();
 });

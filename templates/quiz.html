@@ -31,8 +31,19 @@
                     <div class="letter-box" id="letterDisplay">
                         <span id="quizLetter">?</span>
                     </div>
-                    <div class="letter-image">
-                        <img id="referenceImage" src="{{ url_for('static', filename='images/public/question-mark.png') }}" alt="Reference Sign">
+                    <div class="quiz-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Time Left: <strong id="timeLeft">2:00</strong></span>
+                        </div>
+                    </div>
+                    <div class="attempts-info">
+                        <p>Your score decreases by 1 point every 12 seconds.</p>
+                    </div>
+                    <!-- Add this new div for displaying the score -->
+                    <div class="letter-score" id="letterScoreDisplay" style="display: none;">
+                        <h3>Your Score for This Letter:</h3>
+                        <div class="score-value" id="letterScore">10</div>
                     </div>
                 </div>
             </div>
@@ -57,18 +68,7 @@
                 </div>
                 
                 <!-- Bottom Section - Controls and Stats -->
-                <div class="quiz-right-bottom">
-                    <div class="quiz-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-clock"></i>
-                            <span>Time Left: <strong id="timeLeft">2:00</strong></span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-star"></i>
-                            <span>Score: <strong id="currentScore">10</strong></span>
-                        </div>
-                    </div>
-                    
+                <div class="quiz-right-bottom">                    
                     <div class="quiz-controls">
                         <button id="startQuizBtn" class="quiz-btn start-btn">
                             <i class="fas fa-play"></i>
@@ -84,6 +84,8 @@
         </div>
     </div>
 
+    <!-- Add Socket.IO script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
 </body>
 </html>
