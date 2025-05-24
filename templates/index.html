@@ -1,117 +1,132 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ASL Video Call</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div class="video-call-container">
-        <header class="call-header">
-            <div class="logo">
-                <i class="fas fa-sign-language"></i>
-                <span>ASL Connect</span>
-            </div>
-            <div class="room-info">
-                <div class="room-badge">
-                    <i class="fas fa-video"></i>
-                    <span id="roomDisplay">Not Connected</span>
-                </div>
-                <div class="call-timer" id="callTimer">00:00</div>
-            </div>
-            <a href="/dashboard" class="back-button">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
-        </header>
+      <header class="call-header">
+        <div class="logo">
+          <img
+            src="{{ url_for('static', filename='images/logo.svg') }}"
+            alt="ASL Connect Logo"
+            class="logo-img"
+          />
+          <span>ASL Connect</span>
+        </div>
+        <div class="room-info">
+          <div class="room-badge">
+            <i class="fas fa-video"></i>
+            <span id="roomDisplay">Not Connected</span>
+          </div>
+          <div class="call-timer" id="callTimer">00:00</div>
+        </div>
+        <a href="/dashboard" class="back-button">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+      </header>
 
-        <div class="main-content">
-            <div class="video-container">
-                <div class="video-wrapper local-video">
-                    <div class="video-frame">
-                        <video id="localVideo" autoplay playsinline muted></video>
-                    </div>
-                    <div class="video-overlay">
-                        <div class="participant-label">
-                            <i class="fas fa-user"></i>
-                            <span>You</span>
-                        </div>
-                        <div class="video-status">
-                            <span class="status-badge muted-badge" id="localMuted">
-                                <i class="fas fa-microphone-slash"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="video-wrapper remote-video">
-                    <div class="video-frame">
-                        <video id="remoteVideo" autoplay playsinline></video>
-                    </div>
-                    <div class="video-overlay">
-                        <div class="participant-label">
-                            <i class="fas fa-user"></i>
-                            <span>Peer</span>
-                        </div>
-                        <div id="subtitles" class="subtitles">
-                            <i class="fas fa-closed-captioning"></i>
-                            <span class="subtitle-text"></span>
-                        </div>
-                    </div>
-                    <div class="connecting-overlay" id="connectingOverlay">
-                        <div class="connecting-animation">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </div>
-                        <p>Waiting for peer to join...</p>
-                    </div>
-                </div>
+      <div class="main-content">
+        <div class="video-container">
+          <div class="video-wrapper local-video">
+            <div class="video-frame">
+              <video id="localVideo" autoplay playsinline muted></video>
             </div>
-            
-            <!-- Add message display container -->
-            <div class="messages-container">
-                <div class="messages-header">
-                    <i class="fas fa-comment-alt"></i>
-                    <span>Sign Language Messages</span>
-                </div>
-                <div class="messages-content" id="messagesContent">
-                    <!-- Messages will be displayed here -->
-                </div>
+            <div class="video-overlay">
+              <div class="participant-label">
+                <i class="fas fa-user"></i>
+                <span>You</span>
+              </div>
+              <div class="video-status">
+                <span class="status-badge muted-badge" id="localMuted">
+                  <i class="fas fa-microphone-slash"></i>
+                </span>
+              </div>
             </div>
-            
-            <div class="controls-container">
-                <div class="room-controls">
-                    <input type="text" id="roomId" placeholder="Enter Room ID" class="room-input">
-                    <button id="joinBtn" class="control-btn join-btn">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span>Join Room</span>
-                    </button>
-                </div>
-                
-                <div class="call-controls">
-                    <button id="muteBtn" class="control-btn">
-                        <i class="fas fa-microphone"></i>
-                        <span>Mute</span>
-                    </button>
-                    <button id="leaveBtn" class="control-btn leave-btn" disabled>
-                        <i class="fas fa-phone-slash"></i>
-                        <span>End Call</span>
-                    </button>
-                </div>
+          </div>
+          <div class="video-wrapper remote-video">
+            <div class="video-frame">
+              <video id="remoteVideo" autoplay playsinline></video>
             </div>
+            <div class="video-overlay">
+              <div class="participant-label">
+                <i class="fas fa-user"></i>
+                <span>Peer</span>
+              </div>
+              <div id="subtitles" class="subtitles">
+                <i class="fas fa-closed-captioning"></i>
+                <span class="subtitle-text"></span>
+              </div>
+            </div>
+            <div class="connecting-overlay" id="connectingOverlay">
+              <div class="connecting-animation">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+              <p>Waiting for peer to join...</p>
+            </div>
+          </div>
         </div>
-        
-        <div class="connection-status">
-            <p id="statusMessage">Ready to connect</p>
+
+        <!-- Add message display container -->
+        <div class="messages-container">
+          <div class="messages-header">
+            <i class="fas fa-comment-alt"></i>
+            <span>Sign Language Messages</span>
+          </div>
+          <div class="messages-content" id="messagesContent">
+            <!-- Messages will be displayed here -->
+          </div>
         </div>
+
+        <div class="controls-container">
+          <div class="room-controls">
+            <input
+              type="text"
+              id="roomId"
+              placeholder="Enter Room ID"
+              class="room-input"
+            />
+            <button id="joinBtn" class="control-btn join-btn">
+              <i class="fas fa-sign-in-alt"></i>
+              <span>Join Room</span>
+            </button>
+          </div>
+
+          <div class="call-controls">
+            <button id="muteBtn" class="control-btn">
+              <i class="fas fa-microphone"></i>
+              <span>Mute</span>
+            </button>
+            <button id="leaveBtn" class="control-btn leave-btn" disabled>
+              <i class="fas fa-phone-slash"></i>
+              <span>End Call</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="connection-status">
+        <p id="statusMessage">Ready to connect</p>
+      </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="{{ url_for('static', filename='js/webrtc.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-</body>
+  </body>
 </html>
-
-

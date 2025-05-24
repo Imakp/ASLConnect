@@ -1,257 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ASL Connect Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div class="dashboard-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ASL Logo">
-                    <h2>ASL Connect</h2>
-                </div>
+      <!-- Sidebar Navigation -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+            <img
+              src="{{ url_for('static', filename='images/logo.svg') }}"
+              alt="ASL Logo"
+            />
+            <h2>ASL Connect</h2>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <ul>
+            <li class="active">
+              <a href="#" data-section="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" data-section="video-call">
+                <i class="fas fa-video"></i>
+                <span>Video Call</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" data-section="learning">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Learning</span>
+              </a>
+            </li>
+            <li class="bottom-nav">
+              <a href="/landing">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Back to Home</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="main-content">
+        <header class="dashboard-header">
+          <div class="header-search">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search..." />
+          </div>
+          <div class="header-user">
+            <div class="user-profile">
+              <img
+                src="{{ url_for('static', filename='images/profile.png') }}"
+                alt="User Avatar"
+              />
+              <span>Welcome, User</span>
             </div>
-            <nav class="sidebar-nav">
-                <ul>
-                    <li class="active">
-                        <a href="#" data-section="dashboard">
-                            <i class="fas fa-home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" data-section="video-call">
-                            <i class="fas fa-video"></i>
-                            <span>Video Call</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" data-section="learning">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Learning</span>
-                        </a>
-                    </li>
-                    <li class="bottom-nav">
-                        <a href="/landing">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Back to Home</span>
-                        </a>
-                    </li>
+          </div>
+        </header>
+
+        <div class="content-wrapper">
+          <!-- Dashboard Overview Section -->
+          <section id="dashboard" class="content-section active">
+            <h1>Dashboard</h1>
+            <p class="section-description">
+              Welcome to ASL Connect. Start learning or join a video call.
+            </p>
+
+            <div class="dashboard-stats">
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-info">
+                  <h2>113</h2>
+                  <p>Quiz Score</p>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-tasks"></i>
+                </div>
+                <div class="stat-info">
+                  <h3>12</h3>
+                  <p>Quizzes Completed</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="quick-access">
+              <h2>Quick Access</h2>
+              <div class="quick-access-cards">
+                <div class="quick-card" id="quick-call">
+                  <div class="quick-card-icon">
+                    <i class="fas fa-video"></i>
+                  </div>
+                  <h3>Start Video Call</h3>
+                  <p>Connect with others using ASL</p>
+                  <a href="#" class="quick-card-btn" data-section="video-call"
+                    >Start Now</a
+                  >
+                </div>
+                <div class="quick-card" id="quick-learn">
+                  <div class="quick-card-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                  </div>
+                  <h3>Continue Learning</h3>
+                  <p>Resume your ASL lessons</p>
+                  <a href="#" class="quick-card-btn" data-section="learning"
+                    >Learn Now</a
+                  >
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Video Call Section -->
+          <section id="video-call" class="content-section">
+            <h1>Video Call</h1>
+            <p class="section-description">
+              Connect with others using ASL recognition technology.
+            </p>
+
+            <div class="video-call-container">
+              <div class="room-creation">
+                <h2>Start or Join a Call</h2>
+                <div class="room-form">
+                  <input
+                    type="text"
+                    id="roomIdInput"
+                    placeholder="Enter Room ID"
+                  />
+                  <button id="createRoomBtn" class="primary-btn">
+                    Create New Room
+                  </button>
+                  <button id="joinRoomBtn" class="secondary-btn">
+                    Join Existing Room
+                  </button>
+                </div>
+              </div>
+
+              <div class="recent-rooms">
+                <h2>Recent Rooms</h2>
+                <div class="room-list">
+                  <div class="room-item">
+                    <div class="room-icon">
+                      <i class="fas fa-users"></i>
+                    </div>
+                    <div class="room-details">
+                      <h4>Family Chat</h4>
+                      <p>Last joined: Yesterday</p>
+                    </div>
+                    <button class="join-btn">Join</button>
+                  </div>
+                  <div class="room-item">
+                    <div class="room-icon">
+                      <i class="fas fa-users"></i>
+                    </div>
+                    <div class="room-details">
+                      <h4>ASL Study Group</h4>
+                      <p>Last joined: 3 days ago</p>
+                    </div>
+                    <button class="join-btn">Join</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="video-call-tips">
+                <h2>Tips for Better Calls</h2>
+                <ul class="tips-list">
+                  <li>
+                    <i class="fas fa-lightbulb"></i>
+                    <span
+                      >Ensure good lighting for better hand recognition</span
+                    >
+                  </li>
+                  <li>
+                    <i class="fas fa-hands"></i>
+                    <span>Keep your hands within the camera frame</span>
+                  </li>
+                  <li>
+                    <i class="fas fa-wifi"></i>
+                    <span>Use a stable internet connection</span>
+                  </li>
                 </ul>
-            </nav>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main class="main-content">
-            <header class="dashboard-header">
-                <div class="header-search">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search...">
-                </div>
-                <div class="header-user">
-                    <div class="user-profile">
-                        <img src="{{ url_for('static', filename='images/profile.png') }}" alt="User Avatar">
-                        <span>Welcome, User</span>
-                    </div>
-                </div>
-            </header>
-
-            <div class="content-wrapper">
-                <!-- Dashboard Overview Section -->
-                <section id="dashboard" class="content-section active">
-                    <h1>Dashboard</h1>
-                    <p class="section-description">Welcome to ASL Connect. Start learning or join a video call.</p>
-                    
-                    <div class="dashboard-stats">
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-trophy"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h2>113</h2>
-                                <p>Quiz Score</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-tasks"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>12</h3>
-                                <p>Quizzes Completed</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="quick-access">
-                        <h2>Quick Access</h2>
-                        <div class="quick-access-cards">
-                            <div class="quick-card" id="quick-call">
-                                <div class="quick-card-icon">
-                                    <i class="fas fa-video"></i>
-                                </div>
-                                <h3>Start Video Call</h3>
-                                <p>Connect with others using ASL</p>
-                                <a href="#" class="quick-card-btn" data-section="video-call">Start Now</a>
-                            </div>
-                            <div class="quick-card" id="quick-learn">
-                                <div class="quick-card-icon">
-                                    <i class="fas fa-graduation-cap"></i>
-                                </div>
-                                <h3>Continue Learning</h3>
-                                <p>Resume your ASL lessons</p>
-                                <a href="#" class="quick-card-btn" data-section="learning">Learn Now</a>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Video Call Section -->
-                <section id="video-call" class="content-section">
-                    <h1>Video Call</h1>
-                    <p class="section-description">Connect with others using ASL recognition technology.</p>
-                    
-                    <div class="video-call-container">
-                        <div class="room-creation">
-                            <h2>Start or Join a Call</h2>
-                            <div class="room-form">
-                                <input type="text" id="roomIdInput" placeholder="Enter Room ID">
-                                <button id="createRoomBtn" class="primary-btn">Create New Room</button>
-                                <button id="joinRoomBtn" class="secondary-btn">Join Existing Room</button>
-                            </div>
-                        </div>
-                        
-                        <div class="recent-rooms">
-                            <h2>Recent Rooms</h2>
-                            <div class="room-list">
-                                <div class="room-item">
-                                    <div class="room-icon">
-                                        <i class="fas fa-users"></i>
-                                    </div>
-                                    <div class="room-details">
-                                        <h4>Family Chat</h4>
-                                        <p>Last joined: Yesterday</p>
-                                    </div>
-                                    <button class="join-btn">Join</button>
-                                </div>
-                                <div class="room-item">
-                                    <div class="room-icon">
-                                        <i class="fas fa-users"></i>
-                                    </div>
-                                    <div class="room-details">
-                                        <h4>ASL Study Group</h4>
-                                        <p>Last joined: 3 days ago</p>
-                                    </div>
-                                    <button class="join-btn">Join</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="video-call-tips">
-                            <h2>Tips for Better Calls</h2>
-                            <ul class="tips-list">
-                                <li>
-                                    <i class="fas fa-lightbulb"></i>
-                                    <span>Ensure good lighting for better hand recognition</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-hands"></i>
-                                    <span>Keep your hands within the camera frame</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-wifi"></i>
-                                    <span>Use a stable internet connection</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Learning Section -->
-                <section id="learning" class="content-section">
-                    <h1 class="section-title">Learning ASL</h1>
-                    <p class="section-description">Master American Sign Language through our interactive learning platform.</p>
-                    
-                    <!-- ASL Alphabet Section -->
-                    <div class="asl-alphabet-section">
-                        <div class="section-header">
-                            <h2>ASL Library</h2>
-                            <div class="alphabet-search">
-                                <input type="text" id="alphabetSearch" placeholder="Search letters, numbers or phrases...">
-                                <i class="fas fa-search search-icon"></i>
-                            </div>
-                        </div>
-                        
-                        <!-- In the learning section, add the resources tab button -->
-                        <div class="alphabet-tabs">
-                            <button class="tab-btn active" data-tab="alphabet">Alphabet</button>
-                            <button class="tab-btn" data-tab="numbers">Numbers</button>
-                            <button class="tab-btn" data-tab="common-phrases">Common Phrases</button>
-                            <button class="tab-btn" data-tab="greetings">Greetings</button>
-                            <button class="tab-btn" data-tab="resources">Resources</button>
-                        </div>
-                        
-                        <h3 class="alphabet-title">ASL Alphabet</h3>
-                        
-                        <div class="alphabet-grid">
-                            <!-- Alphabet cards will be here -->
-                            <!-- Example for A -->
-                            <div class="alphabet-card">
-                                <div class="alphabet-image">
-                                    <img src="{{ url_for('static', filename='images/asl/a.png') }}" alt="ASL Letter A">
-                                </div>
-                                <div class="alphabet-letter">A</div>
-                                <div class="alphabet-action">Click to learn</div>
-                            </div>
-                            <!-- More alphabet cards... -->
-                        </div>
-                        
-                        <div class="alphabet-pagination">
-                            <button class="pagination-btn active">1</button>
-                            <button class="pagination-btn">2</button>
-                            <button class="pagination-btn">3</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Practice Section -->
-                    <div class="practice-section">
-                        <div class="section-header">
-                            <h2>Practice ASL</h2>
-                            <p>Apply what you've learned through interactive practice sessions</p>
-                        </div>
-                        
-                        <div class="practice-options">
-                            <!-- Update the practice button to link to the camera practice page -->
-                            <div class="practice-card">
-                                <div class="practice-icon">
-                                    <i class="fas fa-camera"></i>
-                                </div>
-                                <h3>Camera Practice</h3>
-                                <p>Practice ASL signs with real-time feedback using your camera.</p>
-                                <a href="/camera-practice" class="practice-btn">Start Practice</a>
-                            </div>
-                            <div class="practice-card">
-                                <div class="practice-icon">
-                                    <i class="fas fa-gamepad"></i>
-                                </div>
-                                <h3>Quiz Time</h3>
-                                <p>Give a best shot of your learning here.</p>
-                                <a href="/quiz" class="practice-btn">Quiz time</a>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+              </div>
             </div>
-        </main>
+          </section>
+
+          <!-- Learning Section -->
+          <section id="learning" class="content-section">
+            <h1 class="section-title">Learning ASL</h1>
+            <p class="section-description">
+              Master American Sign Language through our interactive learning
+              platform.
+            </p>
+
+            <!-- ASL Alphabet Section -->
+            <div class="asl-alphabet-section">
+              <div class="section-header">
+                <h2>ASL Library</h2>
+                <div class="alphabet-search">
+                  <input
+                    type="text"
+                    id="alphabetSearch"
+                    placeholder="Search letters, numbers or phrases..."
+                  />
+                  <i class="fas fa-search search-icon"></i>
+                </div>
+              </div>
+
+              <!-- In the learning section, add the resources tab button -->
+              <div class="alphabet-tabs">
+                <button class="tab-btn active" data-tab="alphabet">
+                  Alphabet
+                </button>
+                <button class="tab-btn" data-tab="numbers">Numbers</button>
+                <button class="tab-btn" data-tab="common-phrases">
+                  Common Phrases
+                </button>
+                <button class="tab-btn" data-tab="greetings">Greetings</button>
+                <button class="tab-btn" data-tab="resources">Resources</button>
+              </div>
+
+              <h3 class="alphabet-title">ASL Alphabet</h3>
+
+              <div class="alphabet-grid">
+                <!-- Alphabet cards will be here -->
+                <!-- Example for A -->
+                <div class="alphabet-card">
+                  <div class="alphabet-image">
+                    <img
+                      src="{{ url_for('static', filename='images/asl/a.png') }}"
+                      alt="ASL Letter A"
+                    />
+                  </div>
+                  <div class="alphabet-letter">A</div>
+                  <div class="alphabet-action">Click to learn</div>
+                </div>
+                <!-- More alphabet cards... -->
+              </div>
+
+              <div class="alphabet-pagination">
+                <button class="pagination-btn active">1</button>
+                <button class="pagination-btn">2</button>
+                <button class="pagination-btn">3</button>
+              </div>
+            </div>
+
+            <!-- Practice Section -->
+            <div class="practice-section">
+              <div class="section-header">
+                <h2>Practice ASL</h2>
+                <p>
+                  Apply what you've learned through interactive practice
+                  sessions
+                </p>
+              </div>
+
+              <div class="practice-options">
+                <!-- Update the practice button to link to the camera practice page -->
+                <div class="practice-card">
+                  <div class="practice-icon">
+                    <i class="fas fa-camera"></i>
+                  </div>
+                  <h3>Camera Practice</h3>
+                  <p>
+                    Practice ASL signs with real-time feedback using your
+                    camera.
+                  </p>
+                  <a href="/camera-practice" class="practice-btn"
+                    >Start Practice</a
+                  >
+                </div>
+                <div class="practice-card">
+                  <div class="practice-icon">
+                    <i class="fas fa-gamepad"></i>
+                  </div>
+                  <h3>Quiz Time</h3>
+                  <p>Give a best shot of your learning here.</p>
+                  <a href="/quiz" class="practice-btn">Quiz time</a>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
 
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-</body>
+  </body>
 </html>
