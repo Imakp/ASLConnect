@@ -1,6 +1,6 @@
 # ASL Connect
 
-![ASL Recognition System](static\images\ASL.png)
+![ASL Recognition System](.\static\images\ASL.png)
 
 A comprehensive American Sign Language (ASL) recognition and learning platform that breaks communication barriers through real-time sign language recognition.
 
