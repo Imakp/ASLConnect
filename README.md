@@ -1,199 +1,161 @@
-# ASL Recognition System
+# ASL Connect
 
-![ASL Recognition Demo](https://via.placeholder.com/800x400.png?text=ASL+Recognition+Demo)
+![ASL Recognition System](https://via.placeholder.com/800x400.png?text=ASL+Connect)
 
-A modular system for American Sign Language (ASL) recognition using hand landmarks, supporting both single-hand and two-hand signs.
+A comprehensive American Sign Language (ASL) recognition and learning platform that breaks communication barriers through real-time sign language recognition.
 
 ## Table of Contents
+- [Overview](#overview)
 - [Features](#features)
+- [System Architecture](#system-architecture)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Project Structure](#project-structure)
 - [Dataset Format](#dataset-format)
 - [Model Architecture](#model-architecture)
-- [System Design](#system-design)
+- [Contributing](#contributing)
+
+## Overview
+
+ASL Connect is a web-based platform designed to facilitate communication through American Sign Language. The system uses machine learning to recognize ASL signs in real-time, enabling seamless communication between signers and non-signers through video calls with automatic subtitling.
 
 ## Features
-- Real-time hand landmark detection using MediaPipe
-- Support for both single-hand and two-hand ASL signs
-- Modular architecture for easy maintenance and extension
-- Cross-platform compatibility (Windows/macOS)
-- Comprehensive CLI interface
+
+- **Real-time ASL Recognition**: Advanced machine learning model detects and interprets ASL signs instantly
+- **Interactive Learning Platform**: Learn ASL through guided lessons, practice sessions, and quizzes
+- **Video Call Integration**: Connect with others using ASL with real-time sign recognition and subtitling
+- **Multi-hand Support**: Recognizes both single-hand and two-hand ASL signs
+- **Comprehensive Dashboard**: Track learning progress and access all features from a central interface
+- **Responsive Design**: Works seamlessly across different devices and screen sizes
+- **Camera Practice Mode**: Practice ASL signs with real-time feedback
+- **Quiz System**: Test your ASL knowledge with interactive quizzes
+
+## System Architecture
+
+The system consists of several key components:
+
+1. **Web Interface**: Flask-based web application with responsive UI
+2. **ASL Recognition Engine**: Machine learning model trained on hand landmark data
+3. **Video Call System**: WebRTC-based video calling with real-time ASL recognition
+4. **Learning Management**: Interactive lessons, practice sessions, and quizzes
 
 ## Installation
 
 ### Prerequisites
-Python 3.11 - 3.12
-MediaPipe (for hand landmark detection)
-pip package manager
+- Python 3.11 - 3.12
+- pip package manager
+- Web browser with WebRTC support
 
-- Create virtual environment
+### Setup
 
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/ASL-demo.git
+cd ASL-demo
+```
+2. Create and activate a virtual environment:
 ```bash
 python -m venv asl_env
-```
-- Activate environment (macOS/Linux)
-
-```bash
-source asl_env/bin/activate
-```
-- Activate environment (Windows)
-
-```bash
-source asl_env/Scripts/activate
+source asl_env/bin/activate  # On Windows: asl_env\Scripts\activate
 ```
 
-- Install dependencies
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
-```
+ ```
+
+4. Run the Flask application:
+```bash
+python app.py
+ ```
+
+5. Access the application at http://localhost:5000
 
 ## Usage
 
-### Data Collection
-Single-hand sign collection
+### Web Application
 
+1. Landing Page : Access the main features and learn about the platform
+2. Dashboard : Central hub for accessing all features
+3. Learning Section : Interactive lessons for learning ASL
+4. Practice Mode : Practice ASL signs with real-time feedback
+5. Quiz : Test your ASL knowledge
+6. Video Call : Connect with others using ASL with real-time recognition
+
+### ASL Recognition System
+
+The core ASL recognition functionality can also be used via command-line:
+
+ Data Collection
 ```bash
 python asl_app.py collect --letter A --samples 100
-```
-
-Two-hand sign collection
-
-```bash
-python asl_app.py collect --letter MEET --samples 100 --multi-hand
-```
-
-```bash
-python asl_app.py collect --letter MEET --samples 100 --multi-hand --output multi_hand_dataset.csv
-```
-
-Or collect data for multiple letters interactively:
-
-```bash
-python asl_app.py collect
-```
-
-### Data Analysis
-Analyze the collected dataset:
-
+ ```
+ Data Analysis
 ```bash
 python asl_app.py analyze --input asl_landmarks_dataset.csv
 ```
-
-### Combining Datasets
-
-Combine single-hand and multi-hand datasets:
-
-```bash
-python asl_app.py combine --single-hand single_hand_dataset.csv --multi-hand multi_hand_dataset.csv --output combined_dataset.csv
-```
-
-### Model Training
-Train the ASL recognition model for single-hand signs:
-
+ Model Training
 ```bash
 python asl_app.py train --input asl_landmarks_dataset.csv
-```
-
-Train a model specifically for multi-hand signs:
-
-```bash
-python asl_app.py train --input multi_hand_dataset.csv --multi-hand
-```
-
-Train a unified model that handles both single-hand and two-hand signs:
-
-```bash
-python asl_app.py train-unified --single-hand single_hand_dataset.csv --multi-hand multi_hand_dataset.csv
-```
-### Real-time Recognition
-Run real-time ASL recognition using webcam:
-
-```bash
+ ```
+ Real-time Recognition
+ ```bash
 python asl_app.py run
-```
-
-For multi-hand sign recognition:
-
+ ```
+ or
 ```bash
-python asl_app.py run --multi-hand
-```
-
- ### Model Evaluation
-Evaluate the model on saved data:
-
+python asl_app.py run --model asl_mlp_multi_hand_model.joblib
+ ```
+ Model Evaluation
 ```bash
 python asl_app.py evaluate --input test_dataset.csv
 ```
 
-For multi-hand model evaluation:
+## Project Structure
 
 ```bash
-python asl_app.py evaluate --input multi_hand_test_dataset.csv --multi-hand
+ASLConnect/
+├── app.py                      # Main Flask application
+├── asl_app.py                  # Command-line interface for ASL recognition
+├── requirements.txt            # Python dependencies
+├── subtitles.py                # ASL subtitle generation
+├── video_call.py               # Video call management
+├── asl_modules/                # Core ASL recognition modules
+│   ├── data_collection.py      # Data collection utilities
+│   ├── preprocessing.py        # Data preprocessing
+│   ├── training.py             # Model training
+│   ├── inference.py            # Real-time inference
+│   └── utils.py                # Utility functions
+├── asl_model/                  # Trained models and scalers
+│   ├── asl_mlp_multi_hand_model.joblib     # MLP model for multi-hand ASL recognition
+│   └── hand_landmarks_scaler.joblib        # Scaler for hand landmark normalization
+├── static/                     # Static assets
+│   ├── css/                    # Stylesheets
+│   ├── js/                     # JavaScript files
+│   └── images/                 # Images and icons
+└── templates/                  # HTML templates
+    ├── landing.html            # Landing page
+    ├── dashboard.html          # Dashboard
+    ├── login.html              # Login page
+    ├── index.html              # Video call page
+    ├── quiz.html               # Quiz page
+    └── camera_practice.html    # Practice page
 ```
 
 ## Dataset Format
+The ASL recognition system uses hand landmark data collected using MediaPipe Hands. The dataset is stored in CSV format with the following structure:
 
-### Single-hand Signs
-- 21 landmarks × 3 coordinates (x, y, z)
-- Normalized relative to wrist position
-- CSV columns: `label,landmark_0_x,landmark_0_y,landmark_0_z,...`
-
-### Two-hand Signs
-- Hand count indicator (1 or 2)
-- Separate landmarks for left and right hands
-- CSV columns: `label,hand_count,left_0_x,...,right_0_x,...`
+- Single-hand dataset : Contains normalized landmarks for one hand
+- Multi-hand dataset : Contains normalized landmarks for both hands with hand count
 
 ## Model Architecture
+The ASL recognition model uses a Multi-Layer Perceptron (MLP) neural network with the following architecture:
 
-### Single-hand Model
-```python
-InputLayer(63) -> Dense(128, activation='relu') -> Dense(num_classes, activation='softmax')
-```
+- Input layer: Hand landmark features (normalized x, y, z coordinates)
+- Hidden layers: Configurable size (default: 128 neurons)
+- Output layer: ASL sign classes
+- Activation: ReLU
+- Optimizer: Adam with adaptive learning rate
 
-### Multi-hand Model
-```python
-InputLayer(127) -> Dense(128, activation='relu') -> Dense(64, activation='relu') -> Dense(num_classes, activation='softmax')
-```
-
-- **Optimizer**: Adam (learning_rate=0.001)
-- **Loss**: Categorical Cross-entropy
-- **Metrics**: Accuracy, Precision, Recall
-
-## System Design
-
-```mermaid
-graph TD
-    A[Webcam Input] --> B(Hand Detection)
-    B --> C{Hand Count}
-    C -->|Single| D[Single-hand Processing]
-    C -->|Multi| E[Multi-hand Processing]
-    D --> F[Landmark Normalization]
-    E --> F
-    F --> G[Model Inference]
-    G --> H[Output Display]
-```
-
-Key Components:
-- **asl_modules/utils.py**: Shared utilities
-- **asl_modules/data_collection.py**: Data pipeline
-- **asl_modules/training.py**: Model development
-- **asl_modules/inference.py**: Real-time prediction
-
-Thank you for your interest in the ASL Recognition System!
-
-services:
-  - type: web
-    name: asl-demo
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --worker-class eventlet -w 1 
-    --timeout 120 --keep-alive 65 --log-level debug app:app
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
-      - key: WEB_CONCURRENCY
-        value: 1
-    resources:
-      memory: 512M
-
-
+## Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
