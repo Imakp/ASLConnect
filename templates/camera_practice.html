@@ -1,249 +1,382 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ASL Camera Practice</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/camera_practice.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/camera_practice.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div class="practice-container">
-        <!-- Header with back button -->
-        <header class="practice-header">
-            <a href="/dashboard" class="back-btn">
-                <i class="fas fa-arrow-left"></i>
-                <span>Back to Dashboard</span>
-            </a>
-            <h1>ASL Camera Practice</h1>
-            <div class="practice-user">
-                <img src="{{ url_for('static', filename='images/profile.png') }}" alt="User Avatar">
-            </div>
-        </header>
-
-        <div class="practice-content">
-            <!-- Left sidebar with letters and numbers -->
-            <div class="practice-sidebar">
-                <div class="practice-tabs">
-                    <button class="practice-tab active" data-tab="letters">Letters</button>
-                    <button class="practice-tab" data-tab="numbers">Numbers</button>
-                </div>
-                
-                <div class="practice-tab-content active" id="letters-content">
-                    <h3>ASL Alphabet</h3>
-                    <div class="practice-items">
-                        <div class="practice-item active" data-letter="A">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/A_test.jpg') }}" alt="ASL A">
-                            <span>A</span>
-                        </div>
-                        <div class="practice-item" data-letter="B">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/B_test.jpg') }}" alt="ASL B">
-                            <span>B</span>
-                        </div>
-                        <div class="practice-item" data-letter="C">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/C_test.jpg') }}" alt="ASL C">
-                            <span>C</span>
-                        </div>
-                        <div class="practice-item" data-letter="D">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/D_test.jpg') }}" alt="ASL D">
-                            <span>D</span>
-                        </div>
-                        <div class="practice-item" data-letter="E">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/E_test.jpg') }}" alt="ASL E">
-                            <span>E</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/F_test.jpg') }}" alt="ASL F">
-                            <span>F</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/G_test.jpg') }}" alt="ASL F">
-                            <span>G</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/H_test.jpg') }}" alt="ASL F">
-                            <span>H</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/I_test.jpg') }}" alt="ASL F">
-                            <span>I</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/J_test.jpg') }}" alt="ASL F">
-                            <span>J</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/K_test.jpg') }}" alt="ASL F">
-                            <span>K</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/L_test.jpg') }}" alt="ASL F">
-                            <span>L</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/M_test.jpg') }}" alt="ASL F">
-                            <span>M</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/N_test.jpg') }}" alt="ASL F">
-                            <span>N</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/O_test.jpg') }}" alt="ASL F">
-                            <span>O</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/P_test.jpg') }}" alt="ASL F">
-                            <span>P</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/Q_test.jpg') }}" alt="ASL F">
-                            <span>Q</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/R_test.jpg') }}" alt="ASL F">
-                            <span>R</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/S_test.jpg') }}" alt="ASL F">
-                            <span>S</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/T_test.jpg') }}" alt="ASL F">
-                            <span>T</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/U_test.jpg') }}" alt="ASL F">
-                            <span>U</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/V_test.jpg') }}" alt="ASL F">
-                            <span>V</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/W_test.jpg') }}" alt="ASL F">
-                            <span>W</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/X_test.jpg') }}" alt="ASL F">
-                            <span>X</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/Y_test.jpg') }}" alt="ASL F">
-                            <span>Y</span>
-                        </div>
-                        <div class="practice-item" data-letter="F">
-                            <img src="{{ url_for('static', filename='images/public/alphabets/Z_test.jpg') }}" alt="ASL F">
-                            <span>Z</span>
-                        </div>
-                        <!-- More letters can be added here -->
-                    </div>
-                </div>
-                
-                <!-- In the numbers-content section, add all numbers from 0-9 -->
-                <div class="practice-tab-content" id="numbers-content">
-                    <h3>ASL Numbers</h3>
-                    <div class="practice-items">
-                        <div class="practice-item" data-letter="0">
-                            <img src="{{ url_for('static', filename='images/public/numbers/Sign 0.jpeg') }}" alt="ASL 0">
-                            <span>0</span>
-                        </div>
-                        <div class="practice-item" data-letter="1">
-                            <img src="{{ url_for('static', filename='images/public/numbers/Sign 1.jpeg') }}" alt="ASL 1">
-                            <span>1</span>
-                        </div>
-                        <div class="practice-item" data-letter="2">
-                            <img src="{{ url_for('static', filename='images/public/numbers/Sign 2.jpeg') }}" alt="ASL 2">
-                            <span>2</span>
-                        </div>
-                        <div class="practice-item" data-letter="3">
-                            <img src="{{ url_for('static', filename='images/public/numbers/Sign 3.jpeg') }}" alt="ASL 3">
-                            <span>3</span>
-                        </div>
-                        <div class="practice-item" data-letter="4">
-                            <img src="{{ url_for('static', filename='images/public/numbers/Sign 4.jpeg') }}" alt="ASL 4">
-                            <span>4</span>
-                        </div>
-                        <div class="practice-item" data-letter="5">
-                            <img src="{{ url_for('static', filename='images/public/numbers/Sign 5.jpeg') }}" alt="ASL 5">
-                            <span>5</span>
-                        </div>
-                        <div class="practice-item" data-letter="6">
-                            <img src="{{ url_for('static', filename='images/public/numbers/Sign 6.jpeg') }}" alt="ASL 6">
-                            <span>6</span>
-                        </div>
-                        <div class="practice-item" data-letter="7">
-                            <img src="{{ url_for('static', filename='images/public/numbers/Sign 7.jpeg') }}" alt="ASL 7">
-                            <span>7</span>
-                        </div>
-                        <div class="practice-item" data-letter="8">
-                            <img src="{{ url_for('static', filename='images/public/numbers/Sign 8.jpeg') }}" alt="ASL 8">
-                            <span>8</span>
-                        </div>
-                        <div class="practice-item" data-letter="9">
-                            <img src="{{ url_for('static', filename='images/public/numbers/Sign 9.jpeg') }}" alt="ASL 9">
-                            <span>9</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Right side with camera view -->
-            <div class="practice-main">
-                <div class="practice-view">
-                    <div class="reference-image">
-                        <img id="referenceSign" src="{{ url_for('static', filename='images/public/alphabets/A_test.jpg') }}" alt="Reference Sign">
-                        <h3>Reference: <span id="currentLetter">A</span></h3>
-                    </div>
-                    
-                    <div class="camera-container">
-                        <video id="cameraFeed" autoplay playsinline></video>
-                        <div class="camera-overlay">
-                            <div class="hand-position-guide"></div>
-                        </div>
-                        <div class="camera-controls">
-                            <button id="startCamera" class="camera-btn">
-                                <i class="fas fa-video"></i> Start Camera
-                            </button>
-                            <button id="captureImage" class="camera-btn" disabled>
-                                <i class="fas fa-camera"></i> Capture
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="practice-feedback">
-                    <div class="feedback-header">
-                        <h3>Practice Feedback</h3>
-                        <div class="accuracy-meter">
-                            <div class="accuracy-label">Accuracy:</div>
-                            <div class="accuracy-bar">
-                                <div class="accuracy-fill" style="width: 0%"></div>
-                            </div>
-                            <div class="accuracy-value">0%</div>
-                        </div>
-                    </div>
-                    
-                    <div class="feedback-content">
-                        <p class="feedback-message">Select a letter or number and start the camera to begin practice.</p>
-                        <div class="feedback-tips">
-                            <h4>Tips:</h4>
-                            <ul>
-                                <li>Position your hand in the center of the frame</li>
-                                <li>Ensure good lighting for better recognition</li>
-                                <li>Keep your hand steady for accurate detection</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <!-- Header with back button -->
+      <header class="practice-header">
+        <a href="/dashboard" class="back-btn">
+          <i class="fas fa-arrow-left"></i>
+          <span>Back to Dashboard</span>
+        </a>
+        <h1>ASL Camera Practice</h1>
+        <div class="practice-user">
+          <img
+            src="{{ url_for('static', filename='images/profile.png') }}"
+            alt="User Avatar"
+          />
         </div>
+      </header>
+
+      <div class="practice-content">
+        <!-- Left sidebar with letters and numbers -->
+        <div class="practice-sidebar">
+          <div class="practice-tabs">
+            <button class="practice-tab active" data-tab="letters">
+              Letters
+            </button>
+            <button class="practice-tab" data-tab="numbers">Numbers</button>
+          </div>
+
+          <div class="practice-tab-content active" id="letters-content">
+            <h3>ASL Alphabet</h3>
+            <div class="practice-items">
+              <div class="practice-item active" data-letter="A">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/A_test.jpg') }}"
+                  alt="ASL A"
+                />
+                <span>A</span>
+              </div>
+              <div class="practice-item" data-letter="B">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/B_test.jpg') }}"
+                  alt="ASL B"
+                />
+                <span>B</span>
+              </div>
+              <div class="practice-item" data-letter="C">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/C_test.jpg') }}"
+                  alt="ASL C"
+                />
+                <span>C</span>
+              </div>
+              <div class="practice-item" data-letter="D">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/D_test.jpg') }}"
+                  alt="ASL D"
+                />
+                <span>D</span>
+              </div>
+              <div class="practice-item" data-letter="E">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/E_test.jpg') }}"
+                  alt="ASL E"
+                />
+                <span>E</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/F_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>F</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/G_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>G</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/H_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>H</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/I_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>I</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/J_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>J</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/K_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>K</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/L_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>L</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/M_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>M</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/N_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>N</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/O_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>O</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/P_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>P</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/Q_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>Q</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/R_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>R</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/S_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>S</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/T_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>T</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/U_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>U</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/V_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>V</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/W_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>W</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/X_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>X</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/Y_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>Y</span>
+              </div>
+              <div class="practice-item" data-letter="F">
+                <img
+                  src="{{ url_for('static', filename='images/public/alphabets/Z_test.jpg') }}"
+                  alt="ASL F"
+                />
+                <span>Z</span>
+              </div>
+              <!-- More letters can be added here -->
+            </div>
+          </div>
+
+          <!-- In the numbers-content section, add all numbers from 0-9 -->
+          <div class="practice-tab-content" id="numbers-content">
+            <h3>ASL Numbers</h3>
+            <div class="practice-items">
+              <div class="practice-item" data-letter="0">
+                <img
+                  src="{{ url_for('static', filename='images/public/numbers/Sign 0.jpeg') }}"
+                  alt="ASL 0"
+                />
+                <span>0</span>
+              </div>
+              <div class="practice-item" data-letter="1">
+                <img
+                  src="{{ url_for('static', filename='images/public/numbers/Sign 1.jpeg') }}"
+                  alt="ASL 1"
+                />
+                <span>1</span>
+              </div>
+              <div class="practice-item" data-letter="2">
+                <img
+                  src="{{ url_for('static', filename='images/public/numbers/Sign 2.jpeg') }}"
+                  alt="ASL 2"
+                />
+                <span>2</span>
+              </div>
+              <div class="practice-item" data-letter="3">
+                <img
+                  src="{{ url_for('static', filename='images/public/numbers/Sign 3.jpeg') }}"
+                  alt="ASL 3"
+                />
+                <span>3</span>
+              </div>
+              <div class="practice-item" data-letter="4">
+                <img
+                  src="{{ url_for('static', filename='images/public/numbers/Sign 4.jpeg') }}"
+                  alt="ASL 4"
+                />
+                <span>4</span>
+              </div>
+              <div class="practice-item" data-letter="5">
+                <img
+                  src="{{ url_for('static', filename='images/public/numbers/Sign 5.jpeg') }}"
+                  alt="ASL 5"
+                />
+                <span>5</span>
+              </div>
+              <div class="practice-item" data-letter="6">
+                <img
+                  src="{{ url_for('static', filename='images/public/numbers/Sign 6.jpeg') }}"
+                  alt="ASL 6"
+                />
+                <span>6</span>
+              </div>
+              <div class="practice-item" data-letter="7">
+                <img
+                  src="{{ url_for('static', filename='images/public/numbers/Sign 7.jpeg') }}"
+                  alt="ASL 7"
+                />
+                <span>7</span>
+              </div>
+              <div class="practice-item" data-letter="8">
+                <img
+                  src="{{ url_for('static', filename='images/public/numbers/Sign 8.jpeg') }}"
+                  alt="ASL 8"
+                />
+                <span>8</span>
+              </div>
+              <div class="practice-item" data-letter="9">
+                <img
+                  src="{{ url_for('static', filename='images/public/numbers/Sign 9.jpeg') }}"
+                  alt="ASL 9"
+                />
+                <span>9</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side with camera view -->
+        <div class="practice-main">
+          <div class="practice-view">
+            <div class="group-text-vid">
+              <div class="reference-image">
+                <img
+                  id="referenceSign"
+                  src="{{ url_for('static', filename='images/public/alphabets/A_test.jpg') }}"
+                  alt="Reference Sign"
+                />
+                <h3>Reference: <span id="currentLetter">A</span></h3>
+              </div>
+
+              <div class="camera-container">
+                <video id="cameraFeed" autoplay playsinline></video>
+                <div class="camera-overlay">
+                  <div class="hand-position-guide"></div>
+                </div>
+                <div class="camera-controls">
+                  <button id="startCamera" class="camera-btn">
+                    <i class="fas fa-video"></i> Start Camera
+                  </button>
+                  <button id="captureImage" class="camera-btn" disabled>
+                    <i class="fas fa-camera"></i> Capture
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="practice-feedback">
+              <div class="feedback-header">
+                <h3>Practice Feedback</h3>
+                <div class="accuracy-meter">
+                  <div class="accuracy-label">Accuracy:</div>
+                  <div class="accuracy-bar">
+                    <div class="accuracy-fill" style="width: 0%"></div>
+                  </div>
+                  <div class="accuracy-value">0%</div>
+                </div>
+              </div>
+
+              <div class="feedback-content">
+                <p class="feedback-message">
+                  Select a letter or number and start the camera to begin
+                  practice.
+                </p>
+                <div class="feedback-tips">
+                  <h4>Tips:</h4>
+                  <ul>
+                    <li>Position your hand in the center of the frame</li>
+                    <li>Ensure good lighting for better recognition</li>
+                    <li>Keep your hand steady for accurate detection</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Add Socket.IO script before the camera_practice.js script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="{{ url_for('static', filename='js/camera_practice.js') }}"></script>
-</body>
+  </body>
 </html>
